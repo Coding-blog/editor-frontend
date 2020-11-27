@@ -28,6 +28,6 @@ module.exports = {
   },
   plugins: [
     new CleanWebpackPlugin(),
-    new HtmlWebpackPlugin({ title: 'Callbag-JSX Sample Project!' })
+    new HtmlWebpackPlugin({ title: 'coding.blog editorial panel' })
   ],
 };

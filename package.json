@@ -1,5 +1,5 @@
 {
-  "name": "callbag-jsx-starter-ts",
+  "name": "editor-frontend",
   "version": "1.0.0",
   "description": "Starter Typescript project for callbag-jsx",
   "main": "index.js",
@@ -19,9 +19,12 @@
   },
   "homepage": "https://github.com/loreanvictor/callbag-jsx-starter-ts#readme",
   "dependencies": {
-    "callbag": "^1.3.0",
-    "callbag-expr": "^0.2.0",
-    "callbag-jsx": "0.0.30"
+    "@api/editor-backend": "file:api-editor-backend-1.0.0.tgz",
+    "callbag-common": "^0.1.0",
+    "callbag-jsx": "^0.1.6",
+    "callbag-share": "^1.2.0",
+    "jss": "^10.5.0",
+    "jss-preset-default": "^10.5.0"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.7.0",
@@ -36,5 +39,13 @@
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0",
     "webpack-merge": "^5.4.0"
+  },
+  "tyfons": {
+    "http://localhost:8000": {
+      "name": "@api/editor-backend",
+      "version": "1.0.0",
+      "url": "http://localhost:8000",
+      "env": "dev"
+    }
   }
 }

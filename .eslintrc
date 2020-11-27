@@ -9,9 +9,9 @@
   "rules": {
     "quotes": ["warn", "single", {"avoidEscape": true}],
     "curly": "warn",
+    "no-unused-vars": "off",
     "no-unused-expressions": "warn",
     "no-shadow": "warn",
-    "no-magic-numbers": ["warn", {"ignore": [-1, 0, 1, 2, 100]}],
     "prefer-const": "warn",
     "eqeqeq": "warn",
     "prefer-spread": "warn",
@@ -29,6 +29,8 @@
     "@typescript-eslint/no-inferrable-types": "warn",
     "@typescript-eslint/restrict-plus-operands": "off",
     "@typescript-eslint/restrict-template-expressions": "off",
-    "@typescript-eslint/no-this-alias": "off"
+    "@typescript-eslint/no-this-alias": "off",
+    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_|^renderer$" }],
+    "@typescript-eslint/ban-types": "off"
   }
 }
