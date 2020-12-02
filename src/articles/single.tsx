@@ -1,17 +1,20 @@
-import { pipe, map, flatten, filter, fromPromise, subscribe, debounce, expr } from 'callbag-common';
+import cloneDeep from 'lodash.clonedeep';
+import { pipe, map, flatten, fromPromise, filter, subscribe, debounce, expr } from 'callbag-common';
 import { state } from 'callbag-state';
-import { TrackerComponentThis } from 'callbag-jsx';
+import { Conditional, TrackerComponentThis } from 'callbag-jsx';
 import { RendererLike } from 'render-jsx';
-import { Article, getExternalArticle, getSuggestedTags } from '@api/editor-backend';
+import {
+  Article, getExternalArticle, getSuggestedTags, createArticle, updateArticle, deleteArticle
+} from '@api/editor-backend';
 
 import { Header } from '../misc/header';
 import { Buttons } from '../misc/buttons';
-import { changed, required, valid } from '../util/forms';
+import { changed, ensurePrefix, isRequired, isUrl, snapshot, valid } from '../util/forms';
 import { style } from '../util/style';
-import { AuthService } from '../auth/service';
+import { authToken } from '../auth/service';
 import { TagInput } from '../misc/tag-input';
-import { ensureHttps, isHttps, isURL } from './util';
-import { DateInput } from '../misc/date-input';
+import { DateTimeInput } from '../misc/date-time-input';
+import { IconButton } from '../misc/icon-button';
 
 
 const classes = style({
@@ -20,11 +23,12 @@ const classes = style({
 
 export interface SingleProps {
   article?: Article;
+  ondelete?: () => void;
 }
 
 export function Single(this: TrackerComponentThis,
   props: SingleProps, renderer: RendererLike<Node>) {
-  const article = state<Article>(props.article || {
+  const article = state<Article>(cloneDeep(props.article) || {
     status: 'submitted',
     url: '',
     title: '',
@@ -35,56 +39,74 @@ export function Single(this: TrackerComponentThis,
     tags: [],
   });
 
-  const isValid = valid(article, { url: required, title: required, description: required });
-  const hasChanged = changed(article, props.article);
+  this.track(pipe(article, subscribe(v => console.log(v.title))));
 
-  this.track(pipe(article.sub('url'), subscribe(u => {
-    if (u && !isHttps(u)) {
-      setTimeout(() => article.sub('url').set(ensureHttps(u)), 1);
-    }
-  })));
+  const saving = state(false);
+  const isValid = valid(article, { url: [isRequired, isUrl], title: isRequired, description: isRequired });
+  const hasChanged = changed(article, () => props.article, saving);
+  const existing = expr($ => ($(saving) && false) || !!props.article);
+
+  this.track(ensurePrefix(article.sub('url'), 'https://'));
 
   this.track(pipe(
     article.sub('url'),
     debounce(700),
-    filter(url => !!url && isURL(url)),
+    filter(isUrl),
+    filter(() => !props.article),
     map(url => fromPromise((async() => {
-      try { return await getExternalArticle(AuthService.instance.token.get()!, url!); }
+      try { return await getExternalArticle(authToken()!, url!); }
       catch { return null; }
     })())),
     flatten, subscribe(_article => { if (_article) { article.set(_article); }})
   ));
 
   const save = () => {
-    article.sub('publishingDate').set(new Date());
+    saving.set(true);
+    (props.article?updateArticle:createArticle)(authToken()!, article.get()!)
+      .then(() => props.article = snapshot(article))
+      .catch(() => alert('Could not save!'))
+      .finally(() => saving.set(false));
+  };
+
+  const trash = () => {
+    saving.set(true);
+    deleteArticle(authToken()!, article.get())
+      .then(() => props.ondelete ? props.ondelete() : void 0)
+      .catch(() => alert('Could not delete!'))
+      .finally(() => saving.set(false));
   };
 
   return <>
-    <Header>{props.article ? 'Article' : 'New Article'}</Header>
+    <Header>{expr($ => $(existing) ? 'Article' : 'New Article')}</Header>
 
     <label>URL</label>
-    <input type='text' _state={article.sub('url')} placeholder='The link must be https. Fill this to auto-fill other fields.'/>
+    <input type='text' _state={article.sub('url')}
+      placeholder='The link must be https. Fill this to auto-fill other fields.'/>
 
     <label>General Information</label>
     <input type='text' _state={article.sub('title')} placeholder='Title'/>
     <textarea _state={article.sub('description')} placeholder='Description'/>
     <TagInput _state={article.sub('tags')}
       placeholder='Tags'
-      suggestions={text => fromPromise(getSuggestedTags(AuthService.instance.token.get()!, text))}
+      suggestions={text => fromPromise(getSuggestedTags(authToken()!, text))}
     />
 
     <label>Publishing Date</label>
-    <DateInput _state={article.sub('publishingDate')} placeholder='Publishing Date'/>
+    <DateTimeInput _state={article.sub('publishingDate')} placeholder='Publishing Date' />
 
     <label>Image</label>
     <input type='text' _state={article.sub('image')} placeholder='URL for the article image'/>
-    <img class={classes().image} src={pipe(
-      article.sub('image'),
-      debounce(200),
-      map(s => s || '')
-    )}/>
+    <img class={classes().image} src={pipe(article.sub('image'), debounce(200), map(s => s || ''))}/>
+
     <Buttons>
-      <button disabled={expr($ => !($(isValid) && $(hasChanged)))} onclick={save}>Save</button>
+      <Conditional if={existing} then={() => <IconButton icon='./assets/icon-trash.svg' onclick={trash}/>}/>
+      <button disabled={expr($ => !($(isValid) && $(hasChanged) && !$(saving)))} onclick={save}>
+        {
+          expr($ => $(saving) ?
+            ($(existing) ? 'Updating ...' : 'Saving ...') :
+            ($(existing) ? 'Update' : 'Save'))
+        }
+      </button>
     </Buttons>
   </>;
 }

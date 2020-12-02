@@ -20,11 +20,15 @@
   "homepage": "https://github.com/loreanvictor/callbag-jsx-starter-ts#readme",
   "dependencies": {
     "@api/editor-backend": "file:api-editor-backend-1.0.0.tgz",
+    "@types/lodash.clonedeep": "^4.5.6",
+    "@types/lodash.isequal": "^4.5.5",
     "callbag-common": "^0.1.0",
-    "callbag-jsx": "^0.1.6",
+    "callbag-jsx": "^0.1.8",
     "callbag-share": "^1.2.0",
     "jss": "^10.5.0",
-    "jss-preset-default": "^10.5.0"
+    "jss-preset-default": "^10.5.0",
+    "lodash.clonedeep": "^4.5.0",
+    "lodash.isequal": "^4.5.0"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.7.0",

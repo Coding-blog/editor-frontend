@@ -5,7 +5,8 @@ import { List, TrackerComponentThis } from 'callbag-jsx';
 import { state, StateLike } from 'callbag-state';
 
 import { inputStyles } from './style';
-import { Suggestions } from './suggestions';
+import { TagsWidget } from './widget';
+import { Tag } from '../tag';
 
 
 export interface TagInputProps {
@@ -78,15 +79,15 @@ export function TagInput(this: TrackerComponentThis, props: TagInputProps, rende
   };
 
   return <div class={['input', inputStyles().tagInput, {focused}]}>
-    <List of={props._state} each={(tag, index) => <div class={inputStyles().tag}>
+    <List of={props._state} each={(tag, index) => <Tag>
       {tag}
       <img src='./assets/icon-close-white.svg' onclick={() => remove(index)}/>
-    </div>}/>
+    </Tag>}/>
     <input type='text' placeholder={props.placeholder || ''}
       onkeydown={keypress} _state={next} _ref={input}
       onfocus={() => focused.set(true)} onblur={() => focused.set(false)}/>
     { props.suggestions ?
-      <Suggestions element={input} picked={add} hlindex={hlindex} focused={focused}
+      <TagsWidget element={input} picked={add} hlindex={hlindex} focused={focused}
         src={merge(suggestions, pipe(props._state, map(() => suggestions.get())))}/>
       : <></>
     }

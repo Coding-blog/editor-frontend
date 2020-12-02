@@ -1,10 +1,17 @@
-import { State } from 'callbag-state';
-import { expr } from 'callbag-expr';
+import isEqual from 'lodash.isequal';
+import cloneDeep from 'lodash.clonedeep';
+import { StateLike } from 'callbag-state';
+import { expr, pipe, Source, subscribe } from 'callbag-common';
+
 import { ensureArray } from './ensure-array';
 
-
-export function required<T>(t: T) {
+export function isRequired<T>(t: T) {
   return !!t;
+}
+
+export function isUrl(link: string) {
+  return /https:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
+    .test(link);
 }
 
 export type Validator<T> = (t: T) => boolean;
@@ -13,7 +20,7 @@ export type ValidationRules<T> = {
 }
 
 
-export function valid<T>(state: State<T>, rules: ValidationRules<T>) {
+export function valid<T>(state: StateLike<T>, rules: ValidationRules<T>) {
   return expr($ => {
     const v = $(state);
     if (!v) {
@@ -27,12 +34,27 @@ export function valid<T>(state: State<T>, rules: ValidationRules<T>) {
 }
 
 
-export function changed<T>(state: State<T>, snapshot: T | undefined) {
+export function changed<T>(state: StateLike<T>, snap: () => T | undefined, cue?: Source<unknown>) {
   return expr($ => {
-    const v = $(state);
-    if (v === snapshot) { return false; }
-    if (!v && snapshot) { return true; }
+    if (cue) { $(cue); }
 
-    return Object.entries(v!).some(([key, value]) => value !== (snapshot ? snapshot[key as keyof T] : undefined));
+    return !isEqual($(state), snap());
   });
+}
+
+
+export function snapshot<T>(state: StateLike<T>) {
+  return cloneDeep(state.get());
+}
+
+
+export function ensurePrefix(state: StateLike<string>, prefix: string) {
+  return pipe(
+    state,
+    subscribe(v => {
+      if (v && v.length > 0 && !v.startsWith(prefix) && !prefix.startsWith(v)) {
+        setTimeout(() => state.set(prefix + v), 1);
+      }
+    })
+  );
 }

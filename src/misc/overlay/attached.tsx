@@ -6,7 +6,7 @@ import { RendererLike } from 'render-jsx';
 import { ref } from 'render-jsx/common';
 import { LiveComponentThis } from 'render-jsx/component/plugins';
 
-import { style } from '../util/style';
+import { classes } from './styles';
 
 
 const documentRepos = pipe(
@@ -17,23 +17,12 @@ const documentRepos = pipe(
   share
 );
 
-const classes = style({
-  overlayAttached: {
-    position: 'fixed',
-    zIndex: 100,
-    top: 0,
-    left: 0,
-  }
-});
-
-
 export interface OverlayAttachedProps {
   element: RefLike<HTMLElement>;
   attachment: (rect: DOMRect) => {top: number, left: number};
   show: Source<boolean>;
   repos?: Source<unknown>;
 }
-
 
 export function OverlayAttached(
   this: TrackerComponentThis & LiveComponentThis,
@@ -74,4 +63,12 @@ export function OverlayAttached(
   </div>).on(document.body);
 
   return <></>;
+}
+
+export function OverlayWidget(props: OverlayAttachedProps, renderer: RendererLike<Node>, ...children: Node[]) {
+  return <OverlayAttached {...props}>
+    <div class={classes().overlayWidget}>
+      {children}
+    </div>
+  </OverlayAttached>;
 }

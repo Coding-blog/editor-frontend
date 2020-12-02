@@ -1,32 +1,6 @@
 import { style } from '../../util/style';
 
 export const classes = style({
-  dateWidget: {
-    color: 'white',
-    fontSize: 12,
-    width: 168,
-    backdropFilter: 'blur(12px)',
-    borderRadius: 6,
-    background: 'rgba(0, 0, 0, .5)',
-    padding: 8,
-    textAlign: 'center',
-
-    '& button': {
-      color: 'white',
-      fontSize: 12,
-      height: 24,
-      width: 168,
-      fontWeight: 'normal',
-      padding: 0,
-      border: '1px solid rgba(255, 255, 255, .2)',
-      background: 'transparent',
-      transform: 'translateY(0)',
-      transition: 'background .15s',
-      '&:hover': {
-        background: 'rgba(255, 255, 255, .1)'
-      }
-    },
-  },
   controls: {
     display: 'flex',
     alignItems: 'center',
@@ -45,6 +19,8 @@ export const classes = style({
     '& span': { display: 'block', flexGrow: 1 },
   },
   days: {
+    width: 168,
+    height: 6 * 24,
     display: 'inline-block',
     textAlign: 'left',
     '& span': {

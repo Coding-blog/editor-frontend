@@ -9,6 +9,7 @@ const classes = style({
 
     '& button': {
       marginLeft: 8,
+      verticalAlign: 'middle',
     }
   }
 });

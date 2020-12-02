@@ -38,3 +38,8 @@ export class AuthService {
     return pipe(this.token, map(_ => !!_));
   }
 }
+
+
+export function authToken() {
+  return AuthService.instance.token.get();
+}
