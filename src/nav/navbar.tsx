@@ -1,9 +1,7 @@
 import { RendererLike } from 'render-jsx';
-import { expr } from 'callbag-expr';
 
-import { IconButton } from '../misc/icon-button';
-import { NavService } from './service';
 import { style } from '../util/style';
+import { NavIconButton } from './nav-icon-button';
 
 
 const classes = style({
@@ -23,14 +21,8 @@ const classes = style({
 
 export function NavBar(_: unknown, renderer: RendererLike<Node>) {
   return <div class={classes().navbar}>
-    <IconButton icon='/assets/icon-article.svg' title='Articles'
-      disabled={expr($ => $(NavService.instance.nav) === 'articles')}
-      onclick={() => NavService.instance.navigate('articles')}/>
-    <IconButton icon='/assets/icon-issues.svg' title='Issues'
-      disabled={expr($ => $(NavService.instance.nav) === 'issues')}
-      onclick={() => NavService.instance.navigate('issues')}/>
-    <IconButton icon='/assets/icon-reader.svg' title='Readers'
-      disabled={expr($ => $(NavService.instance.nav) === 'readers')}
-      onclick={() => NavService.instance.navigate('readers')}/>
+    <NavIconButton icon='/assets/icon-article.svg' title='Articles' path='articles/unapproved' match='articles/*'/>
+    <NavIconButton icon='/assets/icon-issues.svg' title='Issues' path='issues'/>
+    <NavIconButton icon='/assets/icon-reader.svg' title='Readers' path='readers'/>
   </div>;
 }

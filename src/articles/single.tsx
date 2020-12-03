@@ -1,10 +1,10 @@
 import cloneDeep from 'lodash.clonedeep';
 import { pipe, map, flatten, fromPromise, filter, subscribe, debounce, expr } from 'callbag-common';
 import { state } from 'callbag-state';
-import { Conditional, TrackerComponentThis } from 'callbag-jsx';
+import { Conditional, List, TrackerComponentThis } from 'callbag-jsx';
 import { RendererLike } from 'render-jsx';
 import {
-  Article, getExternalArticle, getSuggestedTags, createArticle, updateArticle, deleteArticle
+  Article, getExternalArticle, getSuggestedTags, createArticle, updateArticle, deleteArticle, Comment
 } from '@api/editor-backend';
 
 import { Header } from '../misc/header';
@@ -19,6 +19,8 @@ import { IconButton } from '../misc/icon-button';
 
 const classes = style({
   image: { maxWidth: '100%', borderRadius: 8 },
+  comment: { marginBottom: 8, position: 'relative', '& button': { position: 'absolute', top: 8, right: 8, } },
+  commentDate: { fontSize: 12 },
 });
 
 export interface SingleProps {
@@ -37,11 +39,12 @@ export function Single(this: TrackerComponentThis,
     description: '',
     image: '',
     tags: [],
+    comments: [],
   });
 
-  this.track(pipe(article, subscribe(v => console.log(v.title))));
-
   const saving = state(false);
+  const comment = state('');
+
   const isValid = valid(article, { url: [isRequired, isUrl], title: isRequired, description: isRequired });
   const hasChanged = changed(article, () => props.article, saving);
   const existing = expr($ => ($(saving) && false) || !!props.article);
@@ -66,6 +69,19 @@ export function Single(this: TrackerComponentThis,
       .then(() => props.article = snapshot(article))
       .catch(() => alert('Could not save!'))
       .finally(() => saving.set(false));
+  };
+
+  const sendComment = () => {
+    const comments = article.get().comments || [];
+    comments.push({ text: comment.get(), date: new Date() });
+    comment.set('');
+    article.sub('comments').set(comments);
+    save();
+  };
+
+  const deleteComment = (c: Comment) => {
+    article.sub('comments').set(article.get().comments?.filter(_ => _ !== c));
+    save();
   };
 
   const trash = () => {
@@ -94,9 +110,17 @@ export function Single(this: TrackerComponentThis,
     <label>Publishing Date</label>
     <DateTimeInput _state={article.sub('publishingDate')} placeholder='Publishing Date' />
 
+    <label>Approval Status</label>
+    <select _state={article.sub('status')}>
+      <option value='submitted'>Submitted</option>
+      <option value='approved'>Approved</option>
+    </select>
+
     <label>Image</label>
     <input type='text' _state={article.sub('image')} placeholder='URL for the article image'/>
     <img class={classes().image} src={pipe(article.sub('image'), debounce(200), map(s => s || ''))}/>
+
+    <hr/>
 
     <Buttons>
       <Conditional if={existing} then={() => <IconButton icon='./assets/icon-trash.svg' onclick={trash}/>}/>
@@ -108,5 +132,22 @@ export function Single(this: TrackerComponentThis,
         }
       </button>
     </Buttons>
+
+    <hr/>
+
+    <Conditional if={existing} then={() => <>
+      <h1>Comments</h1>
+      <List of={article.sub('comments')} each={c =>
+        <div class={classes().comment}>
+          <div class={classes().commentDate}>{expr($ => $(c)?.date?.toDateString())}</div>
+          {c.sub('text')}
+          <IconButton icon='./assets/icon-trash.svg' onclick={() => deleteComment(c.get()!)}/>
+        </div>}
+      />
+      <textarea _state={comment} placeholder='Type some comment ...'></textarea>
+      <Buttons>
+        <button disabled={expr($ => $(saving) || !$(comment))} onclick={sendComment}>Send</button>
+      </Buttons>
+    </>}/>
   </>;
 }

@@ -22,7 +22,7 @@ export function Style(_: unknown, renderer: RendererLike<Node>) {
       position: relative;
     }
 
-    input, textarea, .input {
+    input, textarea, select, .input {
       display: block;
       width: calc(100% - 16px);
       border: 1px solid transparent;
@@ -36,22 +36,26 @@ export function Style(_: unknown, renderer: RendererLike<Node>) {
       transition: box-shadow .15s, transform .15s, border-color .15s;
     }
 
+    select {
+      width: 100%;
+    }
+
     label {
       font-size: 12px;
       font-weight: bold;
       display: block;
     }
 
-    input ~ label, textarea ~ label, .input ~ label {
+    input ~ label, textarea ~ label, select ~ label, .input ~ label {
       margin-top: 24px;
     }
 
-    input:focus, textarea:focus, .input.focused {
+    input:focus, textarea:focus, select:focus, .input.focused {
       box-shadow: 0 6px 18px #36306222;
       transform: translateY(-1px);
     }
 
-    input.error, textarea.error, .input.error {
+    input.error, textarea.error, select.error, .input.error {
       border-color: #f05454;
     }
 
@@ -84,5 +88,11 @@ export function Style(_: unknown, renderer: RendererLike<Node>) {
     }
 
     button[disabled] { cursor: initial; opacity: .75 }
+
+    hr {
+      border: none;
+      border-top: 1px solid #e0e0e0;
+      margin: 24px 0;
+    }
   `}</style>;
 }

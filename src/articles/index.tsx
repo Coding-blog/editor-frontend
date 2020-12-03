@@ -1,37 +1,47 @@
-import cloneDeep from 'lodash.clonedeep';
 import { RendererLike } from 'render-jsx';
-import state from 'callbag-state';
+import { fromPromise } from 'callbag-common';
+import { getUnapprovedArticles, getArticleByUrl, getApprovedArticles } from '@api/editor-backend';
 
 import { Toolbar } from '../misc/toolbar';
-import { Toggle } from '../misc/toggle';
-import { Switch } from '../misc/switch';
 import { Single } from './single';
 import { ArticleList } from './list';
-import { fromPromise, of } from 'callbag-common';
-import { Article, getUnapprovedArticles } from '@api/editor-backend';
 import { authToken } from '../auth/service';
+import { Route } from '../nav/route';
+import { navigate } from '../nav/service';
+import { NavIconButton } from '../nav/nav-icon-button';
+import { Wait } from '../misc/wait';
+import { Header } from '../misc/header';
 
 
 export function Articles(_: unknown, renderer: RendererLike<Node>) {
-  const mode = state('unapproved');
-  let picked: Article | undefined;
-
   return <>
-    <Switch on={mode} cases={[
-      ['new', () => <Single ondelete={() => mode.set('unapproved')}/>],
-      ['edit', () => <Single ondelete={() => mode.set('unapproved')} article={cloneDeep(picked)}/>],
-      ['unapproved', () =>
-        <ArticleList title='Unapproved Articles'
-          articles={fromPromise(getUnapprovedArticles(authToken()!))}
-          pick={article => { picked = article; mode.set('edit'); }}
-        />
-      ],
-      ['approved', () => <ArticleList title='Approved Articles' articles={of([])}/>]
-    ]}/>
+    <Route path='**/unapproved' comp={() =>
+      <ArticleList title='Unapproved Articles'
+        articles={fromPromise(getUnapprovedArticles(authToken()!))}
+        pick={article => navigate('articles/:url/edit', { url: article.url })}
+      />
+    }/>
+    <Route path='**/approved' comp={() =>
+      <ArticleList title='Approved Articles'
+        articles={fromPromise(getApprovedArticles(authToken()!))}
+        pick={article => navigate('articles/:url/edit', { url: article.url })}
+      />
+    }/>
+    <Route path='**/new' comp={() =>
+      <Single ondelete={() => {
+        navigate('articles/unapproved');
+      }}/>
+    }/>
+    <Route path='**/:url/edit' comp={(params) =>
+      <Wait for={getArticleByUrl(authToken()!, params.url)}
+        with={() => <Header>Loading ...</Header>}
+        then={article => <Single article={article} ondelete={() => navigate('articles/unapproved')}/>}
+      />
+    }/>
     <Toolbar>
-      <Toggle for={mode} on='new' icon='./assets/icon-new.svg' title='New'/>
-      <Toggle for={mode} on='unapproved' icon='./assets/icon-dont-approve.svg' title='Unapproved'/>
-      <Toggle for={mode} on='approved' icon='./assets/icon-approve.svg' title='Approved'/>
+      <NavIconButton icon='/assets/icon-new.svg' title='New' path='articles/new'/>
+      <NavIconButton icon='/assets/icon-dont-approve.svg' title='Unapproved' path='articles/unapproved'/>
+      <NavIconButton icon='/assets/icon-approve.svg' title='Approved' path='articles/approved'/>
     </Toolbar>
   </>;
 }

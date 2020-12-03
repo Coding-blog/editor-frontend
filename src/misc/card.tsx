@@ -1,4 +1,5 @@
 import { RendererLike } from 'render-jsx';
+import { noop } from '../util/noop';
 import { style } from '../util/style';
 
 const classes = style({
@@ -10,7 +11,11 @@ const classes = style({
     transition: 'box-shadow .15s, transform .15s',
     overflow: 'hidden',
 
-    '&:hover': {
+    '&.no-action': {
+      cursor: 'initial',
+    },
+
+    '&:hover:not(.no-action)': {
       boxShadow: '0 11px 33px rgba(0, 0, 0, .12)',
       transform: 'translateY(-2px)'
     }
@@ -23,6 +28,9 @@ const classes = style({
   },
   subtitle: {
     padding: '0px 16px',
+    '&:first-child': {
+      paddingTop: 16,
+    },
     marginTop: -2,
     fontSize: 12,
     opacity: .75,
@@ -40,11 +48,11 @@ export interface CardProps {
   image?: unknown,
   title?: unknown,
   subtitle?: unknown,
-  onclick: () => void,
+  onclick?: () => void,
 }
 
 export function Card(props: CardProps, renderer: RendererLike<Node>, content: Node[]) {
-  return <div class={classes().card} onclick={() => props.onclick()}>
+  return <div class={[classes().card, {'no-action': !props.onclick}]} onclick={() => (props.onclick || noop)()}>
     {props.image ? <div class={classes().image}>{props.image}</div> : ''}
     {props.title ? <div class={classes().title}>{props.title}</div>: ''}
     {props.subtitle ? <div class={classes().subtitle}>{props.subtitle}</div>: ''}

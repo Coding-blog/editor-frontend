@@ -5,8 +5,8 @@ import { style } from '../util/style';
 
 const classes = style({
   icon: {
-    width: 36,
-    height: 36,
+    width: 32,
+    height: 32,
     minWidth: 'auto',
     position: 'relative',
 
