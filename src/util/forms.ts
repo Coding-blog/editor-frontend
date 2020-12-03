@@ -14,6 +14,14 @@ export function isUrl(link: string) {
     .test(link);
 }
 
+export function isEmail(email: string) {
+  return /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(email);
+}
+
+export function isMinLength(n: number) {
+  return (l: unknown[] | string) => !!l && l.length >= n;
+}
+
 export type Validator<T> = (t: T) => boolean;
 export type ValidationRules<T> = {
   [K in keyof T]?: Validator<T[K]> | Validator<T[K]>[];

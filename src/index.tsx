@@ -28,7 +28,7 @@ renderer.render(<div class='container'>
       <NavBar/>
       <Route path='articles/*' comp={() => <Articles/>}/>
       <Route path='issues' comp={() => <Issues/>}/>
-      <Route path='readers' comp={() => <Readers/>}/>
+      <Route path='readers/*' comp={() => <Readers/>}/>
     </>}
     else={() => <Login/>}
   />

@@ -1,5 +1,6 @@
 import cloneDeep from 'lodash.clonedeep';
-import { pipe, map, flatten, fromPromise, filter, subscribe, debounce, expr } from 'callbag-common';
+import { ref } from 'render-jsx/common';
+import { pipe, map, flatten, fromPromise, filter, subscribe, debounce, expr, tap } from 'callbag-common';
 import { state } from 'callbag-state';
 import { Conditional, List, TrackerComponentThis } from 'callbag-jsx';
 import { RendererLike } from 'render-jsx';
@@ -15,6 +16,9 @@ import { authToken } from '../auth/service';
 import { TagInput } from '../misc/tag-input';
 import { DateTimeInput } from '../misc/date-time-input';
 import { IconButton } from '../misc/icon-button';
+import { OverlayAttached } from '../misc/overlay/attached';
+import { Loading } from '../misc/loading';
+import { noop } from '../util/noop';
 
 
 const classes = style({
@@ -30,6 +34,7 @@ export interface SingleProps {
 
 export function Single(this: TrackerComponentThis,
   props: SingleProps, renderer: RendererLike<Node>) {
+  const urlInput = ref<HTMLElement>();
   const article = state<Article>(cloneDeep(props.article) || {
     status: 'submitted',
     url: '',
@@ -43,6 +48,7 @@ export function Single(this: TrackerComponentThis,
   });
 
   const saving = state(false);
+  const autofilling = state(false);
   const comment = state('');
 
   const isValid = valid(article, { url: [isRequired, isUrl], title: isRequired, description: isRequired });
@@ -53,14 +59,17 @@ export function Single(this: TrackerComponentThis,
 
   this.track(pipe(
     article.sub('url'),
-    debounce(700),
     filter(isUrl),
     filter(() => !props.article),
+    tap(() => autofilling.set(true)),
+    debounce(700),
     map(url => fromPromise((async() => {
       try { return await getExternalArticle(authToken()!, url!); }
       catch { return null; }
     })())),
-    flatten, subscribe(_article => { if (_article) { article.set(_article); }})
+    flatten,
+    tap(() => autofilling.set(false)),
+    subscribe(_article => { if (_article) { article.set(_article); }})
   ));
 
   const save = () => {
@@ -87,7 +96,7 @@ export function Single(this: TrackerComponentThis,
   const trash = () => {
     saving.set(true);
     deleteArticle(authToken()!, article.get())
-      .then(() => props.ondelete ? props.ondelete() : void 0)
+      .then(() => props.ondelete ? props.ondelete() : noop)
       .catch(() => alert('Could not delete!'))
       .finally(() => saving.set(false));
   };
@@ -96,8 +105,12 @@ export function Single(this: TrackerComponentThis,
     <Header>{expr($ => $(existing) ? 'Article' : 'New Article')}</Header>
 
     <label>URL</label>
-    <input type='text' _state={article.sub('url')}
+    <input type='text' _state={article.sub('url')} _ref={urlInput}
       placeholder='The link must be https. Fill this to auto-fill other fields.'/>
+    <OverlayAttached element={urlInput} show={autofilling}
+      attachment={box => ({top: box.top + 4, left: box.right - 32})} repos={autofilling}>
+      <Loading/>
+    </OverlayAttached>
 
     <label>General Information</label>
     <input type='text' _state={article.sub('title')} placeholder='Title'/>

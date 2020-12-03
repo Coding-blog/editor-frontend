@@ -52,7 +52,8 @@ export interface CardProps {
 }
 
 export function Card(props: CardProps, renderer: RendererLike<Node>, content: Node[]) {
-  return <div class={[classes().card, {'no-action': !props.onclick}]} onclick={() => (props.onclick || noop)()}>
+  return <div class={[classes().card, {'no-action': !props.onclick || props.onclick === noop}]}
+    onclick={() => (props.onclick || noop)()}>
     {props.image ? <div class={classes().image}>{props.image}</div> : ''}
     {props.title ? <div class={classes().title}>{props.title}</div>: ''}
     {props.subtitle ? <div class={classes().subtitle}>{props.subtitle}</div>: ''}

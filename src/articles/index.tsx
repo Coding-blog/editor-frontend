@@ -39,9 +39,9 @@ export function Articles(_: unknown, renderer: RendererLike<Node>) {
       />
     }/>
     <Toolbar>
-      <NavIconButton icon='/assets/icon-new.svg' title='New' path='articles/new'/>
-      <NavIconButton icon='/assets/icon-dont-approve.svg' title='Unapproved' path='articles/unapproved'/>
-      <NavIconButton icon='/assets/icon-approve.svg' title='Approved' path='articles/approved'/>
+      <NavIconButton icon='./assets/icon-new.svg' title='New' path='articles/new'/>
+      <NavIconButton icon='./assets/icon-dont-approve.svg' title='Unapproved' path='articles/unapproved'/>
+      <NavIconButton icon='./assets/icon-approve.svg' title='Approved' path='articles/approved'/>
     </Toolbar>
   </>;
 }
