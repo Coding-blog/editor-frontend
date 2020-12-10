@@ -124,10 +124,18 @@ export function Single(this: TrackerComponentThis,
     <DateTimeInput _state={article.sub('publishingDate')} placeholder='Publishing Date' />
 
     <label>Approval Status</label>
-    <select _state={article.sub('status')}>
-      <option value='submitted'>Submitted</option>
-      <option value='approved'>Approved</option>
-    </select>
+    <div style={{display: 'flex', gap: '8px' }}>
+      <select _state={article.sub('status')}>
+        <option value='submitted'>Submitted</option>
+        <option value='approved'>Approved</option>
+      </select>
+      <IconButton icon='./assets/icon-link.svg'
+        disabled={expr($ => !isUrl($(article)?.url || ''))}
+        onclick={() => {
+          window.open(article.get()!.url, '_blank');
+        }}
+      />
+    </div>
 
     <label>Image</label>
     <input type='text' _state={article.sub('image')} placeholder='URL for the article image'/>

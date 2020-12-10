@@ -33,4 +33,28 @@ export const classes = style({
       }
     },
   },
+  overlayBackdrop: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    left: 0, right: 0,
+    top: 0, bottom: 0,
+    position: 'fixed',
+    background: 'rgba(0, 0, 0, .35)',
+    backdropFilter: 'blur(12px)',
+    opacity: 0,
+    transition: 'opacity .15s',
+
+    '&.active': {
+      opacity: 1,
+    }
+  },
+  dialog: {
+    width: 512,
+    maxHeight: '75vh',
+    overflow: 'auto',
+    background: 'white',
+    borderRadius: 8,
+    padding: 16,
+  }
 });

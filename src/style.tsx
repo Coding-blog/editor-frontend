@@ -66,7 +66,7 @@ export function Style(_: unknown, renderer: RendererLike<Node>) {
       outline: none;
       cursor: pointer;
       border-radius: 3px;
-      height: 32px;
+      height: 36px;
       min-width: 96px;
       display: inline-flex;
       justify-content: center;

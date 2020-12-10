@@ -1,4 +1,4 @@
-import { expr, pipe, subscribe, Source, debounce } from 'callbag-common';
+import { expr, pipe, subscribe, Source, debounce, map } from 'callbag-common';
 import { For, TrackerComponentThis } from 'callbag-jsx';
 import { RendererLike } from 'render-jsx';
 import { suggestionStyles } from './style';
@@ -36,7 +36,7 @@ export function TagsWidget(props: TagsWidgetProps, renderer: RendererLike<Node>)
     show={expr($ => $(props.focused) && $(props.src, []).length > 0)}
     attachment={rect => ({ top: rect.bottom + 3, left: rect.left })}
     repos={pipe(props.src, debounce(1))}>
-    <For of={props.src} each={(item, index) =>
+    <For of={pipe(props.src, map(l => l.slice(0, 10)))} each={(item, index) =>
       <TagsWidgetItem item={item} picked={props.picked} highlight={expr($ => $(props.hlindex) === index)}/>
     }/>
   </OverlayWidget>;

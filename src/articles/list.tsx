@@ -27,13 +27,14 @@ const classes = style({
   },
   image: {
     maxHeight: 200,
-    overflow: 'hidden',
+    width: '100%',
+    objectFit: 'cover',
   },
 });
 
 export interface ArticleCardProps {
   article: StateLike<Article>;
-  pick: (article: Article) => void;
+  pick?: (article: Article) => void;
   tagPick?: (tag: string) => void;
 }
 
@@ -42,10 +43,10 @@ export function ArticleCard(props: ArticleCardProps, renderer: RendererLike<Node
   return <Card title={props.article.sub('title')}
     image={<Conditional
       if={props.article.sub('image')}
-      then={() => <div class={classes().image}><img src={props.article.sub('image')}/></div>}/>
+      then={() => <img class={classes().image} src={props.article.sub('image')}/>}/>
     }
     subtitle={expr($ => $(props.article)?.publishingDate.toDateString())}
-    onclick={() => props.pick(props.article.get()!)}>
+    onclick={props.pick ? () => props.pick!(props.article.get()!) : noop}>
     {trim(props.article.sub('description'))}
     <br/>
     <div style={{display: 'flex'}}>
@@ -61,8 +62,9 @@ export function ArticleCard(props: ArticleCardProps, renderer: RendererLike<Node
 
 export interface ArticleListProps {
   articles: Source<Article[]>;
-  title: string;
+  title?: string;
   pick?: (article: Article) => void;
+  inline?: boolean;
 }
 
 export function ArticleList(props: ArticleListProps, renderer: RendererLike<Node>) {
@@ -72,12 +74,6 @@ export function ArticleList(props: ArticleListProps, renderer: RendererLike<Node
     else { return $(props.articles)?.filter(article => $(tags)?.every(tag => article.tags?.includes(tag))); }
   });
 
-  const pick = (article: Article) => {
-    if (props.pick) {
-      props.pick(article);
-    }
-  };
-
   const addTag = (tag: string) => {
     if (!tags.get().includes(tag)) {
       tags.sub(tags.get().length).set(tag);
@@ -85,22 +81,26 @@ export function ArticleList(props: ArticleListProps, renderer: RendererLike<Node
   };
 
   return <>
-    <Header>{props.title}</Header>
-    <TagInput _state={tags} placeholder='filter by tags ...'
-      suggestions={text => fromPromise(getSuggestedTags(authToken()!, text))}/>
-    <br/>
+    {
+      props.inline ? '' : <>
+        <Header>{props.title}</Header>
+        <TagInput _state={tags} placeholder='Filter by tags ...'
+          suggestions={text => fromPromise(getSuggestedTags(authToken()!, text))}/>
+        <br/>
+      </>
+    }
     <div class={classes().columns}>
       <div class={classes().column}>
         <List of={articles} each={(article, index) =>
           index % 2 === 0 ?
-            <ArticleCard article={article} pick={pick} tagPick={addTag}/>
+            <ArticleCard article={article} pick={props.pick} tagPick={addTag}/>
             : <></>
         }/>
       </div>
       <div class={classes().column}>
         <List of={articles} each={(article, index) =>
           index % 2 === 1 ?
-            <ArticleCard article={article} pick={pick} tagPick={addTag}/>
+            <ArticleCard article={article} pick={props.pick} tagPick={addTag}/>
             : <></>
         }/>
       </div>

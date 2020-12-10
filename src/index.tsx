@@ -27,7 +27,7 @@ renderer.render(<div class='container'>
     then={() => <>
       <NavBar/>
       <Route path='articles/*' comp={() => <Articles/>}/>
-      <Route path='issues' comp={() => <Issues/>}/>
+      <Route path='issues/*' comp={() => <Issues/>}/>
       <Route path='readers/*' comp={() => <Readers/>}/>
     </>}
     else={() => <Login/>}
