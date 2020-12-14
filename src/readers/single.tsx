@@ -1,17 +1,20 @@
 import cloneDeep from 'lodash.clonedeep';
-import { createReader, deleteReader, getSuggestedTags, Reader, updateReader } from '@api/editor-backend';
+import { createReader, deleteReader, getIssuesByReader, getSuggestedTags, Reader, updateReader } from '@api/editor-backend';
 import { RendererLike } from 'render-jsx';
 import { Conditional } from 'callbag-jsx';
 import { state } from 'callbag-state';
 
 import { Header } from '../misc/header';
 import { changed, isEmail, isMinLength, isRequired, valid, snapshot } from '../util/forms';
-import { expr, fromPromise } from 'callbag-common';
+import { expr, fromPromise, of } from 'callbag-common';
 import { TagInput } from '../misc/tag-input';
 import { authToken } from '../auth/service';
 import { Buttons } from '../misc/buttons';
 import { IconButton } from '../misc/icon-button';
 import { noop } from '../util/noop';
+import { Wait } from '../misc/wait';
+import { IssuesList } from '../issues/list';
+import { navigate } from '../nav/service';
 
 
 export interface SingleProps {
@@ -72,7 +75,16 @@ export function Single(props: SingleProps, renderer: RendererLike<Node>) {
     <hr/>
 
     <Buttons>
-      <Conditional if={existing} then={() => <IconButton icon='./assets/icon-trash.svg' onclick={trash}/>}/>
+      <Conditional if={existing} then={() =>
+        <>
+          <button onclick={() => navigate('issues/new', {
+            query: {
+              for: props.reader!.email
+            }
+          })}>New Issue</button>
+          <IconButton icon='./assets/icon-trash.svg' onclick={trash}/>
+        </>
+      }/>
       <button disabled={expr($ => !($(isValid) && $(hasChanged) && !$(saving)))} onclick={save}>
         {
           expr($ => $(saving) ?
@@ -81,5 +93,26 @@ export function Single(props: SingleProps, renderer: RendererLike<Node>) {
         }
       </button>
     </Buttons>
+
+    <hr/>
+
+    {
+      props.reader
+        ? <Wait for={getIssuesByReader(authToken()!, props.reader.email)}
+          with={() => <>Loading issuess ...</>}
+          then={issues =>
+            <IssuesList issues={of(issues)}
+              pick={issue =>
+                navigate('issues/:reader/:title/edit', {
+                  route: {
+                    reader: props.reader!.email,
+                    title: issue.title
+                  }
+                })
+              }
+            />
+          }/>
+        : ''
+    }
   </>;
 }

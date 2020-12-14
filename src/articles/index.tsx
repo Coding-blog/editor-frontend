@@ -18,13 +18,21 @@ export function Articles(_: unknown, renderer: RendererLike<Node>) {
     <Route path='**/unapproved' comp={() =>
       <ArticleList title='Unapproved Articles'
         articles={fromPromise(getUnapprovedArticles(authToken()!))}
-        pick={article => navigate('articles/:url/edit', { url: article.url })}
+        pick={article => navigate('articles/:url/edit', {
+          route: {
+            url: article.url
+          }
+        })}
       />
     }/>
     <Route path='**/approved' comp={() =>
       <ArticleList title='Approved Articles'
         articles={fromPromise(getApprovedArticles(authToken()!))}
-        pick={article => navigate('articles/:url/edit', { url: article.url })}
+        pick={article => navigate('articles/:url/edit', {
+          route: {
+            url: article.url
+          }
+        })}
       />
     }/>
     <Route path='**/new' comp={() =>

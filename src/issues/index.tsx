@@ -26,13 +26,23 @@ export function Issues(_: unknown, renderer: RendererLike<Node>) {
       <IssuesList
         title='Draft Issues'
         issues={fromPromise(getDraftIssues(authToken()!))}
-        pick={issue => navigate('issues/:reader/:title/edit', { reader: issue.reader, title: issue.title })}/>
+        pick={issue => navigate('issues/:reader/:title/edit', {
+          route: {
+            reader: issue.reader,
+            title: issue.title
+          }
+        })}/>
     }/>
     <Route path='**/sent' comp={() =>
       <IssuesList
         title='Sent Issues'
         issues={fromPromise(getSentIssues(authToken()!))}
-        pick={issue => navigate('issues/:reader/:title/edit', { reader: issue.reader, title: issue.title })}/>
+        pick={issue => navigate('issues/:reader/:title/edit', {
+          route: {
+            reader: issue.reader,
+            title: issue.title
+          }
+        })}/>
     }/>
     <Toolbar>
       <NavIconButton icon='./assets/icon-new.svg' title='New' path='issues/new'/>

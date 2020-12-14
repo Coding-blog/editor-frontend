@@ -33,6 +33,7 @@ const classes = style({
 
 export interface SelectArticleProps {
   pick: (article: Article) => void;
+  filter?: (article: Article) => boolean;
 }
 
 
@@ -42,8 +43,9 @@ export function SelectArticle(props: SelectArticleProps, renderer: RendererLike<
   const all = fromPromise(getApprovedArticles(authToken()!));
   const tags = state<string[]>([]);
   const articles = expr($ => {
-    if ($(tags)?.length === 0) { return $(all); }
-    else { return $(all)?.filter(article => $(tags)?.every(tag => article.tags?.includes(tag))); }
+    const list = props.filter ? $(all)?.filter(props.filter) : $(all);
+    if ($(tags)?.length === 0) { return list; }
+    else { return list?.filter(article => $(tags)?.every(tag => article.tags?.includes(tag))); }
   });
 
   const pick = (article: Article) => {

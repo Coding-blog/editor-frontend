@@ -16,6 +16,7 @@ import { ArticleList } from '../articles/list';
 import { ArticlePreview } from './article-preview';
 import { authToken } from '../auth/service';
 import { noop } from '../util/noop';
+import { Q } from '../nav/service';
 
 
 export interface SingleProps {
@@ -27,7 +28,7 @@ export interface SingleProps {
 export function Single(this: TrackerComponentThis, props: SingleProps, renderer: RendererLike<Node>) {
   const issue = state<Issue>(cloneDeep(props.issue) || {
     title: '',
-    reader: '',
+    reader: Q().get()?.for || '',
     date: new Date(),
     articles: [],
     status: 'draft',
@@ -86,7 +87,16 @@ export function Single(this: TrackerComponentThis, props: SingleProps, renderer:
   };
 
   const pickArticle = () => {
-    open(<SelectArticle pick={addArticle}/>, renderer);
+    open(
+      <SelectArticle
+        pick={addArticle}
+        filter={article =>
+          !issues.some(i => i.articles.includes(article.url))
+          && !issue.get().articles.includes(article.url)
+        }
+      />,
+      renderer
+    );
   };
 
   const save = () => {
@@ -131,7 +141,7 @@ export function Single(this: TrackerComponentThis, props: SingleProps, renderer:
 
     <label>Articles</label>
     <Conditional if={expr($ => $(articles)?.length === 0)} then={() => <span>No articles picked.</span>}/>
-    <ArticleList articles={articles} inline={true} pick={article =>
+    <ArticleList articles={articles} pick={article =>
       open(<ArticlePreview article={article} ondelete={() => removeArticle(article)}/>, renderer)
     }/>
 

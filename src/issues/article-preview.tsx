@@ -47,7 +47,11 @@ export function ArticlePreview(props: ArticlePreviewProps, renderer: RendererLik
     <Buttons>
       <IconButton icon='./assets/icon-link.svg' onclick={() => window.open(props.article.url, '_blank')}/>
       <IconButton icon='./assets/icon-edit.svg' onclick={() => {
-        navigate('articles/:url/edit', { url: props.article.url });
+        navigate('articles/:url/edit', {
+          route: {
+            url: props.article.url
+          }
+        });
         controls.$.close();
       }}/>
       <button onclick={() => {

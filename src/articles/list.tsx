@@ -64,7 +64,6 @@ export interface ArticleListProps {
   articles: Source<Article[]>;
   title?: string;
   pick?: (article: Article) => void;
-  inline?: boolean;
 }
 
 export function ArticleList(props: ArticleListProps, renderer: RendererLike<Node>) {
@@ -82,12 +81,14 @@ export function ArticleList(props: ArticleListProps, renderer: RendererLike<Node
 
   return <>
     {
-      props.inline ? '' : <>
-        <Header>{props.title}</Header>
-        <TagInput _state={tags} placeholder='Filter by tags ...'
-          suggestions={text => fromPromise(getSuggestedTags(authToken()!, text))}/>
-        <br/>
-      </>
+      props.title
+        ? <>
+          <Header>{props.title}</Header>
+          <TagInput _state={tags} placeholder='Filter by tags ...'
+            suggestions={text => fromPromise(getSuggestedTags(authToken()!, text))}/>
+          <br/>
+        </>
+        : ''
     }
     <div class={classes().columns}>
       <div class={classes().column}>

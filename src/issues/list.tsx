@@ -50,7 +50,7 @@ export function IssueItem(props: IssueItemProps, renderer: RendererLike<Node>) {
 
 export interface IssuesListProps {
   issues: Source<Issue[]>;
-  title: string;
+  title?: string;
   pick?: (issue: Issue) => void;
 }
 
@@ -62,10 +62,15 @@ export function IssuesList(props: IssuesListProps, renderer: RendererLike<Node>)
   };
 
   return <>
-    <Header>{props.title}</Header>
-    <input type='text' _state={reader}
-      placeholder='Search by reader ...' onclick={pickReader}/>
-    <br/>
+    { props.title
+      ? <>
+        <Header>{props.title}</Header>
+        <input type='text' _state={reader}
+          placeholder='Search by reader ...' onclick={pickReader}/>
+        <br/>
+      </>
+      : ''
+    }
     <div style={{ display: 'flex', 'flex-direction': 'column', gap: '8px' }}>
       <List
         of={expr($ => $(props.issues)?.filter(issue => !$(reader) || issue.reader === $(reader)))}

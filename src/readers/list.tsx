@@ -39,6 +39,7 @@ export function ReadersList(props: ReadersListProps, renderer: RendererLike<Node
       attachment={box => ({top: box.top + 4, left: box.right - 32})} repos={loading}>
       <Loading/>
     </OverlayAttached>
+    <br/>
     <div style={{ display: 'flex', 'flex-direction': 'column', gap: '8px' }}>
       <List of={readers} each={reader =>
         <Card title={reader.sub('name')} subtitle={reader.sub('email')}

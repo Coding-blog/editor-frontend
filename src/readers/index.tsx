@@ -21,7 +21,11 @@ export function Readers(_: unknown, renderer: RendererLike<Node>) {
         then={reader => <Single reader={reader} ondelete={() => navigate('readers/')}/>}/>
     }/>
     <Route path='**/' comp={() =>
-      <ReadersList pick={reader => navigate('readers/:email/edit', { email: reader.email })}/>
+      <ReadersList pick={reader => navigate('readers/:email/edit', {
+        route: {
+          email: reader.email
+        }
+      })}/>
     }/>
     <Toolbar>
       <NavIconButton icon='./assets/icon-new.svg' title='New' path='readers/new'/>

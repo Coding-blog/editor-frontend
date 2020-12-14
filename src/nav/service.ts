@@ -1,9 +1,17 @@
 import g2re from 'glob-to-regexp';
-import { expr } from 'callbag-common';
+import isEqual from 'lodash.isequal';
+import { expr, pipe, subscribe } from 'callbag-common';
 import state, { State } from 'callbag-state';
 
 
 export type RouteParams = {[name: string]: string};
+export type QueryParams = {[name: string]: string};
+
+export interface NavigationOptions {
+  route?: RouteParams;
+  query?: QueryParams;
+}
+
 
 export class NavService {
   static __instance: NavService;
@@ -12,23 +20,51 @@ export class NavService {
   }
 
   nav: State<string>;
+  query: State<QueryParams>;
 
   constructor() {
-    this.nav = state<string>(window.location.hash.substr(1) || 'articles/unapproved');
-    window.addEventListener('popstate', () => this.navigate(window.location.hash.substr(1), {}, false));
+    this.nav = state<string>(this.url() || 'articles/unapproved');
+    this.query = state<QueryParams>(this.parseQ(this.q()));
+    window.addEventListener('popstate', () => this.navigate(this.url(), {
+      query: this.parseQ(this.q())
+    }, false));
+    pipe(
+      this.query,
+      subscribe(q => {
+        if (!isEqual(q, this.parseQ(this.q()))) {
+          const nav = this.nav.get();
+          history.pushState(nav, '', '#' + nav + '?' + this.serializeQ(q));
+        }
+      })
+    );
   }
 
-  navigate(nav: string, params: RouteParams = {}, push = true) {
+  url() { return window.location.hash.substr(1).split('?')[0]; }
+  q() { return window.location.hash.substr(1).split('?')[1]; }
+
+  navigate(nav: string, options?: NavigationOptions, push = true) {
     if (!nav.length) {
       nav = 'articles/unapproved';
     }
 
-    const absolute = this.absolutify(this.inject(nav, params));
+    if (nav.startsWith('/')) {
+      nav = nav.substr(1);
+    }
+
+    const absolute = this.absolutify(this.inject(nav, options?.route || {}));
+
+    if (options?.query) {
+      this.query.set(options.query);
+      if (push) {
+        history.pushState(absolute, '', '#' + absolute + '?' + this.serializeQ(options.query));
+      }
+    } else {
+      if (push) {
+        history.pushState(absolute, '', '#' + absolute);
+      }
+    }
 
     this.nav.set(absolute);
-    if (push) {
-      history.pushState(absolute, '', '#' + absolute);
-    }
   }
 
   match(route: string) {
@@ -68,12 +104,32 @@ export class NavService {
       return route;
     }
   }
+
+  parseQ(query = '') {
+    return query.split('&').reduce((t, s) => {
+      const p = s.split('=');
+      t[decodeURIComponent(p[0])] = decodeURIComponent(p[1] || '');
+
+      return t;
+    }, {} as QueryParams);
+  }
+
+  serializeQ(query: QueryParams) {
+    return Object.entries(query)
+      .map(([key, value]) => encodeURIComponent(key) + '=' + encodeURIComponent(value))
+      .join('&')
+    ;
+  }
 }
 
-export function navigate(nav: string, params: RouteParams = {}, push = true) {
-  NavService.instance.navigate(nav, params, push);
+export function navigate(nav: string, options?: NavigationOptions, push = true) {
+  NavService.instance.navigate(nav, options, push);
 }
 
 export function match(route: string) {
   return NavService.instance.match(route);
+}
+
+export function Q() {
+  return NavService.instance.query;
 }
