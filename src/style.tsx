@@ -55,6 +55,12 @@ export function Style(_: unknown, renderer: RendererLike<Node>) {
       transform: translateY(-1px);
     }
 
+    input[readonly], textarea[readonly], select[readonly], .input.readonly {
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
+      transform: none;
+      background: #f5f5f5;
+    }
+
     input.error, textarea.error, select.error, .input.error {
       border-color: #f05454;
     }
@@ -79,6 +85,7 @@ export function Style(_: unknown, renderer: RendererLike<Node>) {
     button:hover {
       box-shadow: 0 11px 33px rgba(0, 0, 0, .12);
       transform: translateY(-1px);
+      background: #f5f5f5;
     }
 
     button[disabled], button:active {

@@ -1,4 +1,4 @@
-import { Article, Issue, createIssue, updateIssue, deleteIssue, getIssueArticles, getSuggestedArticles, getIssuesByReader } from '@api/editor-backend';
+import { Article, Issue, createIssue, updateIssue, deleteIssue, getIssueArticles, getSuggestedArticles, getIssuesByReader, sendIssue } from '@api/editor-backend';
 import cloneDeep from 'lodash.clonedeep';
 import { expr, filter, flatten, fromPromise, map, pipe, subscribe } from 'callbag-common';
 import { state } from 'callbag-state';
@@ -67,12 +67,14 @@ export function Single(this: TrackerComponentThis, props: SingleProps, renderer:
   const isValid = valid(issue, {
     title: isRequired,
     reader: [isEmail, isRequired],
-    articles: [isRequired, isMinLength(2)]
+    articles: [isRequired, isMinLength(1)]
   });
   const hasChanged = changed(issue, () => props.issue, saving);
 
   const pickReader = () => {
-    open(<SelectReader pick={reader => issue.sub('reader').set(reader.email)}/>, renderer);
+    if (issue.get().status !== 'sent') {
+      open(<SelectReader pick={reader => issue.sub('reader').set(reader.email)}/>, renderer);
+    }
   };
 
   const addArticle = (article: Article) => {
@@ -124,33 +126,65 @@ export function Single(this: TrackerComponentThis, props: SingleProps, renderer:
     ;
   };
 
+  const send = () => {
+    saving.set(true);
+    sendIssue(authToken()!, issue.get()!)
+      .then(() => {
+        issue.sub('status').set('sent');
+        props.issue = snapshot(issue);
+      })
+      .catch(() => alert('Unable to send issue!'))
+      .finally(() => saving.set(false))
+    ;
+  };
+
   return <>
     <Header>{expr($ => $(existing) ? 'Issue' : 'New Issue')}</Header>
 
     <label>Reader</label>
-    <input type='text' _state={issue.sub('reader')} placeholder="Reader's email address" onclick={pickReader}/>
+    <input type='text' _state={issue.sub('reader')}
+      readonly={expr($ => $(issue)?.status === 'sent')}
+      placeholder="Reader's email address" onclick={pickReader}/>
 
     <label>Title</label>
-    <input type='text' _state={issue.sub('title')} placeholder="Issue's title"/>
+    <input type='text' _state={issue.sub('title')}
+      readonly={expr($ => $(issue)?.status === 'sent')}
+      placeholder="Issue's title"/>
 
     <label>Status</label>
     <select _state={issue.sub('status')}>
       <option value='draft'>Draft</option>
       <option value='sent'>Sent</option>
     </select>
-
-    <label>Articles</label>
+    <br/>
+    <Buttons>
+      <IconButton icon='./assets/icon-magic.svg'
+        disabled={expr($ => !$(issue)?.reader || $(issue)?.status === 'sent' || $(autofilling))}
+        onclick={autofill}/>
+      <IconButton icon='./assets/icon-new.svg'
+        disabled={expr($ => $(issue)?.status === 'sent')}
+        onclick={pickArticle}/>
+    </Buttons>
     <Conditional if={expr($ => $(articles)?.length === 0)} then={() => <span>No articles picked.</span>}/>
-    <ArticleList articles={articles} pick={article =>
-      open(<ArticlePreview article={article} ondelete={() => removeArticle(article)}/>, renderer)
-    }/>
+    <ArticleList articles={articles}
+      pick={article => {
+        if (issue.get().status !== 'sent') {
+          open(<ArticlePreview article={article} ondelete={() => removeArticle(article)}/>, renderer);
+        }
+      }}
+    />
 
     <hr/>
 
     <Buttons>
-      <button onclick={autofill} disabled={expr($ => !$(issue)?.reader || $(autofilling))}>Autofill</button>
-      <button onclick={pickArticle}>Add Article</button>
-      <Conditional if={existing} then={() => <IconButton icon='./assets/icon-trash.svg' onclick={trash}/>}/>
+      <Conditional if={existing} then={() => <>
+        <IconButton icon='./assets/icon-trash.svg'
+          disabled={expr($ => $(issue)?.status === 'sent')}
+          onclick={trash}/>
+        <IconButton icon='./assets/icon-send.svg'
+          disabled={expr($ => $(issue)?.status === 'sent' || $(saving))}
+          onclick={send}/>
+      </>}/>
       <button disabled={expr($ => !($(isValid) && $(hasChanged) && !$(saving)))} onclick={save}>
         {
           expr($ => $(saving) ?
