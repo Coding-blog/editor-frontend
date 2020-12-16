@@ -119,7 +119,7 @@ export function Single(this: TrackerComponentThis, props: SingleProps, renderer:
 
   const autofill = () => {
     autofilling.set(true);
-    getSuggestedArticles(authToken()!, issue.get().reader)
+    getSuggestedArticles(authToken()!, issue.get())
       .then(suggestions => articles.set(suggestions))
       .catch(() => alert('Failed to autofill issue!'))
       .finally(() => autofilling.set(false))

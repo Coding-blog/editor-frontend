@@ -60,7 +60,8 @@ export function Single(props: SingleProps, renderer: RendererLike<Node>) {
     <Header>{expr($ => $(existing) ? 'Reader' : 'New Reader')}</Header>
 
     <label>Email</label>
-    <input type='text' _state={reader.sub('email')} placeholder="Ensure this is a proper email address."/>
+    <input type='text' _state={reader.sub('email')}
+      readonly={existing} placeholder="Ensure this is a proper email address."/>
 
     <label>Name</label>
     <input type='text' _state={reader.sub('name')}
