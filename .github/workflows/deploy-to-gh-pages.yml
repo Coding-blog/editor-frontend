@@ -17,9 +17,11 @@ jobs:
 
       - name: Install Server SDK
         run: tyfon i --env prod
+        env:
+          NPM_CONFIG_PREFIX: "~/.npm-global"
 
       - name: Install Other Dependencies
-        run: npm ci
+        run: npm i
 
       - name: Build Frontend Files
         run: npm run build
