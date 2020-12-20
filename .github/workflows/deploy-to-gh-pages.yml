@@ -11,7 +11,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install TyFON
-        run: npm i -g tyfon
+        run: npm i tyfon
+        env:
+          NPM_CONFIG_PREFIX: "~/.npm-global"
 
       - name: Install Server SDK
         run: tyfon i --env prod
