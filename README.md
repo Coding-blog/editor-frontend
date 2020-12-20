@@ -45,7 +45,7 @@ npm i
 npm start
 ```
 
-its now accessible on `http://localhost:8000`
+its now accessible on [`http://localhost:3000`](http://localhost:3000).
 
 👉 you need a key to authenticate, ask a maintainer for it.
 
