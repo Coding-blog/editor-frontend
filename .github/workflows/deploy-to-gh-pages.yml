@@ -8,17 +8,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install TyFON
-        run: npm i -g tyfon
-        env:
-          NPM_CONFIG_PREFIX: "~/.npm-global"
+        run: sudo npm i -g tyfon
 
       - name: Checkout
         uses: actions/checkout@v2
 
       - name: Install Server SDK
         run: tyfon i --env prod
-        env:
-          NPM_CONFIG_PREFIX: "~/.npm-global"
 
       - name: Install Other Dependencies
         run: npm i
