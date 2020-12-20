@@ -47,7 +47,7 @@ npm start
 
 its now accessible on [`http://localhost:3000`](http://localhost:3000).
 
-👉 you need a key to authenticate, ask a maintainer for it.
+👉 you need a key to authenticate. if you are connecting to dev server on your local, checkout [step 5 of dev setup of the backend](https://github.com/Coding-blog/editor-backend#dev-setup). if you are connecting to another server, ask the system owner of that server for an auth key.
 
 <br/>
 
