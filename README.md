@@ -1,35 +1,74 @@
-<img width="156px" src="https://raw.githubusercontent.com/loreanvictor/callbag-jsx/2dce75006b1046ae28edfb8f4ba4af164b167f56/docs/assets/callbag-jsx.svg"/>
+# editor-frontend
 
-# Starter project for [`callbag-jsx`](https://github.com/loreanvictor/callbag-jsx)
+This is the frontend of coding blog editor panel.
 
-1. [Use this template](https://github.com/loreanvictor/callbag-jsx-starter-ts/generate)
-1. Clone your repo and `cd` to it
-1. Install dependencies: `npm i`
-1. Start dev server: `npm start`
-    1. Entry file is in `src/index.tsx`
-    1. Dev version is served on `localhost:3000`
-1. Build your app: `npm run build`
-    1. Build files are in `dist/`
+## Requirements
 
-👉 Don't forget to [read the docs](https://loreanvictor.github.io/callbag-jsx/).
+- [Node.js](https://nodejs.org/en/)
+- [TyFON](https://loreanvictor.github.io/tyfon/)
+
+<br>
+
+## Dev Setup
+
+1. clone and cd into the cloned folder:
+```bash
+git clone git@github.com:Coding-blog/editor-frontend.git
+cd editor-frontend
+```
+
+2. [run backend on dev](https://github.com/Coding-blog/editor-backend#dev-setup)
+
+👉 You can skip this if you want to connect to prod server or some other server
+
+3. install server SDK:
+
+```bash
+tyfon i --env dev
+```
+
+👉 For connecting to prod server, do this instead:
+
+```bash
+tyfon i --env prod
+```
+
+4. install dependencies:
+
+```bash
+npm i
+```
+
+5. run it:
+
+```bash
+npm start
+```
+
+its now accessible on `http://localhost:8000`
+
+👉 you need a key to authenticate, ask a maintainer for it.
+
+<br/>
+
+## Prod Setup:
+
+This repo will automatically be deployed to GitHub Pages (`gh-pages` branch) whenever there is a commit to `main`.
+
+👉 If you want to deploy somewhere else, setup dev, but connect to prod server:
+
+```bash
+tyfon i --env prod
+```
+
+then build stuff:
+
+```bash
+npm run build
+```
+
+and put `dist/` folder on some CDN or static host.
 
 <br><br>
 
-## Starter for the production env
-1. You should use the tyfon command to install the project with the proper backend api URL i.e. `tyfon i https://editor-api.coding.blog --env prod`
 
-<br><br>
-
-## Stack
-
-- [Typescript](https://www.typescriptlang.org/) for transpilation
-  - Configuration in `tsconfig.json`
-
-- [Webpack](https://webpack.js.org) for bundling and dev server
-  - Configuration in `webpack.common.js`
-  - Dev specific config in `webpack.dev.js`
-  - Prod specific config in `webpack.prod.js`
-
-- [ESLint](https://eslint.org) for linting
-  - [typescript-eslint](https://github.com/typescript-eslint/typescript-eslint) for using ESLint on Typescript
-  - Configuration in `.eslintrc`
