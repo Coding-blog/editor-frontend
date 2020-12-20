@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install TyFON
-        run: npm i tyfon
+        run: npm i -g tyfon
         env:
           NPM_CONFIG_PREFIX: "~/.npm-global"
 
