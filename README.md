@@ -13,6 +13,9 @@
 
 👉 Don't forget to [read the docs](https://loreanvictor.github.io/callbag-jsx/).
 
+## Starter for the production env
+1. You should use the tyfon command to install the project with the proper backend api URL i.e. `tyfon i https://editor-api.coding.blog --env prod`
+
 <br><br>
 
 ## Stack
