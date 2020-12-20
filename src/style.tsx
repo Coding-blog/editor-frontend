@@ -8,7 +8,7 @@ export function Style(_: unknown, renderer: RendererLike<Node>) {
 
     body {
       background: #f5f5f5;
-      background-image: url('/assets/dots-bounded.svg');
+      background-image: url('./assets/dots-bounded.svg');
       background-repeat: no-repeat;
       background-size: cover;
       background-attachment: fixed;

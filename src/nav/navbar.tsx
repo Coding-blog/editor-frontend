@@ -21,8 +21,8 @@ const classes = style({
 
 export function NavBar(_: unknown, renderer: RendererLike<Node>) {
   return <div class={classes().navbar}>
-    <NavIconButton icon='/assets/icon-article.svg' title='Articles' path='articles/unapproved' match='articles/*'/>
-    <NavIconButton icon='/assets/icon-issues.svg' title='Issues' path='issues/draft' match='issues/*'/>
-    <NavIconButton icon='/assets/icon-reader.svg' title='Readers' path='readers/' match='readers/*'/>
+    <NavIconButton icon='./assets/icon-article.svg' title='Articles' path='articles/unapproved' match='articles/*'/>
+    <NavIconButton icon='./assets/icon-issues.svg' title='Issues' path='issues/draft' match='issues/*'/>
+    <NavIconButton icon='./assets/icon-reader.svg' title='Readers' path='readers/' match='readers/*'/>
   </div>;
 }

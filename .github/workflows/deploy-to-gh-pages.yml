@@ -1,0 +1,33 @@
+name: Deploy to GitHub Pages
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install TyFON
+        run: npm i -g tyfon
+
+      - name: Install Server SDK
+        run: tyfon i --env prod
+
+      - name: Install Other Dependencies
+        run: npm ci
+
+      - name: Build Frontend Files
+        run: npm run build
+
+      - name: Mark No Jekyll
+        run: touch dist/.nojekyll
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: dist
