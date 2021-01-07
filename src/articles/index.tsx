@@ -1,6 +1,7 @@
 import { RendererLike } from 'render-jsx';
-import { fromPromise } from 'callbag-common';
-import { getUnapprovedArticles, getArticleByUrl, getApprovedArticles } from '@api/editor-backend';
+import { fromPromise, pipe, tap, subscribe } from 'callbag-common';
+import { state } from 'callbag-state';
+import { Article, getUnapprovedArticles, getArticleByUrl, getApprovedArticles } from '@api/editor-backend';
 
 import { Toolbar } from '../misc/toolbar';
 import { Single } from './single';
@@ -15,16 +16,50 @@ import { Header } from '../misc/header';
 
 export function Articles(_: unknown, renderer: RendererLike<Node>) {
   return <>
-    <Route path='**/unapproved' comp={() =>
-      <ArticleList title='Unapproved Articles'
-        articles={fromPromise(getUnapprovedArticles(authToken()!))}
+    <Route path='**/unapproved' comp={() => {
+      const articles = state<Article[]>([]);
+      const isLoading = state(true);
+
+      const getArticles = (lastId?: string) => {
+        isLoading.set(true);
+
+        return pipe(
+          fromPromise(getUnapprovedArticles(authToken()!, lastId)),
+          tap(() => {
+            isLoading.set(false);
+          })
+        );
+      }
+
+      pipe(
+        getArticles(),
+        subscribe((newArticles) => {
+          articles.set([...articles.get(), ...newArticles]);
+        })
+      );
+
+      return <ArticleList title='Unapproved Articles'
+        articles={articles}
+        loadMore={() => {
+          console.log('loadMore called');
+          if(isLoading.get()) return;
+
+          console.log('actually loading more');
+          
+          pipe(
+            getArticles(articles.get().pop()?.title),
+            subscribe((newArticles) => {
+              articles.set([...articles.get(), ...newArticles]);
+            })
+          );
+        }}
         pick={article => navigate('articles/:url/edit', {
           route: {
             url: article.url
           }
         })}
       />
-    }/>
+    }}/>
     <Route path='**/approved' comp={() =>
       <ArticleList title='Approved Articles'
         articles={fromPromise(getApprovedArticles(authToken()!))}
