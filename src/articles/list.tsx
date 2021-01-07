@@ -1,4 +1,5 @@
 import { RendererLike } from 'render-jsx';
+import { LiveComponentThis } from 'render-jsx/component/plugins';
 import { Article, getSuggestedTags } from '@api/editor-backend';
 import { state, StateLike } from 'callbag-state';
 import { expr, fromPromise, Source } from 'callbag-common';
@@ -12,6 +13,7 @@ import { TagInput } from '../misc/tag-input';
 import { authToken } from '../auth/service';
 import { Tag } from '../misc/tag';
 import { noop } from '../util/noop';
+import { Spinner } from '../misc/spinner';
 
 const classes = style({
   columns: {
@@ -30,6 +32,9 @@ const classes = style({
     maxHeight: 200,
     width: '100%',
     objectFit: 'cover',
+  },
+  center: {
+    left: 'calc(50% - 40px)',
   },
 });
 
@@ -65,9 +70,40 @@ export interface ArticleListProps {
   articles: Source<Article[]>;
   title?: string;
   pick?: (article: Article) => void;
+  loadMore?: () => void;
 }
 
-export function ArticleList(props: ArticleListProps, renderer: RendererLike<Node>) {
+export function ArticleList(
+  this: LiveComponentThis,
+  props: ArticleListProps,
+  renderer: RendererLike<Node>
+) {
+  const handleScroll = () => {
+    const {
+        scrollTop,
+        scrollHeight,
+        clientHeight
+    } = document.documentElement;
+
+    if (scrollTop + clientHeight >= scrollHeight - 5
+      ) {
+        props.loadMore && props.loadMore();
+    }
+  };
+
+  const startHandlingInfiniteScrolling = () => {
+    window.addEventListener('scroll', handleScroll, {
+      passive: true
+    });
+  };
+
+  const stopHandlingInfiniteScrolling = () => {
+    window.removeEventListener('scroll', handleScroll);
+  };
+
+  this.onBind(startHandlingInfiniteScrolling);
+  this.onClear(stopHandlingInfiniteScrolling);
+
   const tags = state<string[]>([]);
   const articles = expr($ => {
     if ($(tags)?.length === 0) { return $(props.articles); }
@@ -107,5 +143,6 @@ export function ArticleList(props: ArticleListProps, renderer: RendererLike<Node
         }/>
       </div>
     </div>
+    <Spinner class={classes().center}/>
   </>;
 }
