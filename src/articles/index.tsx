@@ -40,6 +40,7 @@ export function Articles(_: unknown, renderer: RendererLike<Node>) {
 
       return <ArticleList title='Unapproved Articles'
         articles={articles}
+        isLoading={isLoading}
         loadMore={() => {
           console.log('loadMore called');
           if(isLoading.get()) return;

@@ -1,7 +1,7 @@
 import { RendererLike } from 'render-jsx';
 import { LiveComponentThis } from 'render-jsx/component/plugins';
 import { Article, getSuggestedTags } from '@api/editor-backend';
-import { state, StateLike } from 'callbag-state';
+import { State, state, StateLike } from 'callbag-state';
 import { expr, fromPromise, Source } from 'callbag-common';
 import { Conditional, List } from 'callbag-jsx';
 
@@ -69,6 +69,7 @@ export function ArticleCard(props: ArticleCardProps, renderer: RendererLike<Node
 export interface ArticleListProps {
   articles: Source<Article[]>;
   title?: string;
+  isLoading?: State<boolean>;
   pick?: (article: Article) => void;
   loadMore?: () => void;
 }
@@ -143,6 +144,8 @@ export function ArticleList(
         }/>
       </div>
     </div>
-    <Spinner class={classes().center}/>
+    <Conditional if={props.isLoading ?? state(false)}
+      then={() => <Spinner class={classes().center}/>}
+    ></Conditional>
   </>;
 }
