@@ -42,13 +42,10 @@ export function Articles(_: unknown, renderer: RendererLike<Node>) {
         articles={articles}
         isLoading={isLoading}
         loadMore={() => {
-          console.log('loadMore called');
           if(isLoading.get()) return;
-
-          console.log('actually loading more');
           
           pipe(
-            getArticles(articles.get().pop()?.title),
+            getArticles(articles.get()[articles.get().length-1].id),
             subscribe((newArticles) => {
               articles.set([...articles.get(), ...newArticles]);
             })
