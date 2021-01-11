@@ -16,6 +16,7 @@ import { noop } from '../util/noop';
 const classes = style({
   columns: {
     display: 'flex',
+    maxWidth: 'calc(50% - 8px)',
     gap:16,
   },
   column: {
