@@ -16,7 +16,6 @@ import { noop } from '../util/noop';
 const classes = style({
   columns: {
     display: 'flex',
-    maxWidth: 'calc(50% - 8px)',
     gap:16,
   },
   column: {
@@ -25,6 +24,7 @@ const classes = style({
     flexDirection: 'column',
     flexGrow: 1,
     flexBasis: 0,
+    maxWidth: 'calc(50% - 8px)',
   },
   image: {
     maxHeight: 200,
