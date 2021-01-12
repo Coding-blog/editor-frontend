@@ -4,9 +4,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Install TyFON
-        run: sudo npm i -g tyfon
-
       - name: Checkout
         uses: actions/checkout@v2
 
