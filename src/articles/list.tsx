@@ -81,14 +81,15 @@ export function ArticleList(
 ) {
   const handleScroll = () => {
     const {
-        scrollTop,
-        scrollHeight,
-        clientHeight
+      scrollTop,
+      scrollHeight,
+      clientHeight
     } = document.documentElement;
 
-    if (scrollTop + clientHeight >= scrollHeight - 5
-      ) {
-        props.loadMore && props.loadMore();
+    if (scrollTop + clientHeight >= scrollHeight - 5) {
+      if(props.loadMore) {
+        props.loadMore();
+      }
     }
   };
 

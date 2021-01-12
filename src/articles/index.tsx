@@ -29,7 +29,7 @@ export function Articles(_: unknown, renderer: RendererLike<Node>) {
             isLoading.set(false);
           })
         );
-      }
+      };
 
       pipe(
         getArticles(),
@@ -42,8 +42,10 @@ export function Articles(_: unknown, renderer: RendererLike<Node>) {
         articles={articles}
         isLoading={isLoading}
         loadMore={() => {
-          if(isLoading.get()) return;
-          
+          if(isLoading.get()) {
+            return;
+          }
+
           pipe(
             getArticles(articles.get()[articles.get().length-1].id),
             subscribe((newArticles) => {
@@ -56,7 +58,7 @@ export function Articles(_: unknown, renderer: RendererLike<Node>) {
             url: article.url
           }
         })}
-      />
+      />;
     }}/>
     <Route path='**/approved' comp={() => {
       const articles = state<Article[]>([]);
@@ -71,7 +73,7 @@ export function Articles(_: unknown, renderer: RendererLike<Node>) {
             isLoading.set(false);
           })
         );
-      }
+      };
 
       pipe(
         getArticles(),
@@ -84,8 +86,10 @@ export function Articles(_: unknown, renderer: RendererLike<Node>) {
         articles={articles}
         isLoading={isLoading}
         loadMore={() => {
-          if(isLoading.get()) return;
-          
+          if(isLoading.get()) {
+            return;
+          }
+
           pipe(
             getArticles(articles.get()[articles.get().length-1].id),
             subscribe((newArticles) => {
@@ -98,8 +102,8 @@ export function Articles(_: unknown, renderer: RendererLike<Node>) {
             url: article.url
           }
         })}
-      />
-      }
+      />;
+    }
     }/>
     <Route path='**/new' comp={() =>
       <Single ondelete={() => {

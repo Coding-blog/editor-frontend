@@ -1,24 +1,6 @@
 import { RendererLike } from 'render-jsx';
 import { style } from '../util/style';
-// import { keyframes } from "styled-components";
 
-
-/*const animation = keyframes`
-  0% {
-    top: 36px;
-    left: 36px;
-    width: 0;
-    height: 0;
-    opacity: 1;
-  }
-  100% {
-    top: 0px;
-    left: 0px;
-    width: 72px;
-    height: 72px;
-    opacity: 0;
-  }
-`;*/
 const animation = 'ldsRippleAnimation';
 
 const classes = style({
@@ -46,7 +28,7 @@ export interface SpinnerProps {
   class: string;
 }
 
-export function Spinner(props: SpinnerProps, renderer: RendererLike<Node>, content: Node[]) {
+export function Spinner(props: SpinnerProps, renderer: RendererLike<Node>) {
   return <>
     <div class={[classes().ldsRipple, props.class]}><div></div><div></div></div>
     <style>
