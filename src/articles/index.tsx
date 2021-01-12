@@ -58,15 +58,48 @@ export function Articles(_: unknown, renderer: RendererLike<Node>) {
         })}
       />
     }}/>
-    <Route path='**/approved' comp={() =>
-      <ArticleList title='Approved Articles'
-        articles={fromPromise(getApprovedArticles(authToken()!))}
+    <Route path='**/approved' comp={() => {
+      const articles = state<Article[]>([]);
+      const isLoading = state(true);
+
+      const getArticles = (lastId?: string) => {
+        isLoading.set(true);
+
+        return pipe(
+          fromPromise(getApprovedArticles(authToken()!, lastId)),
+          tap(() => {
+            isLoading.set(false);
+          })
+        );
+      }
+
+      pipe(
+        getArticles(),
+        subscribe((newArticles) => {
+          articles.set([...articles.get(), ...newArticles]);
+        })
+      );
+
+      return <ArticleList title='Approved Articles'
+        articles={articles}
+        isLoading={isLoading}
+        loadMore={() => {
+          if(isLoading.get()) return;
+          
+          pipe(
+            getArticles(articles.get()[articles.get().length-1].id),
+            subscribe((newArticles) => {
+              articles.set([...articles.get(), ...newArticles]);
+            })
+          );
+        }}
         pick={article => navigate('articles/:url/edit', {
           route: {
             url: article.url
           }
         })}
       />
+      }
     }/>
     <Route path='**/new' comp={() =>
       <Single ondelete={() => {
