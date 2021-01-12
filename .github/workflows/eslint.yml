@@ -20,4 +20,4 @@ jobs:
         run: npm i
 
       - name: Run ESLint
-        run: ./node_modules/.bin/eslint . --ext .js,.jsx,.ts,.tsx
+        run: ./node_modules/.bin/eslint src --ext .js,.jsx,.ts,.tsx
