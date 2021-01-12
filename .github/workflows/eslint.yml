@@ -7,5 +7,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Install ESLint
+        run: npm install eslint --save-dev
+
       - name: Run ESLint
-        run: eslint . --ext .js,.jsx,.ts,.tsx
+        run: ./node_modules/.bin/eslint . --ext .js,.jsx,.ts,.tsx
