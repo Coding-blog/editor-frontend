@@ -1,9 +1,8 @@
 import { RendererLike } from 'render-jsx';
-import { LiveComponentThis } from 'render-jsx/component/plugins';
 import { Article, getSuggestedTags } from '@api/editor-backend';
 import { State, state, StateLike } from 'callbag-state';
-import { expr, fromPromise, Source } from 'callbag-common';
-import { Conditional, List } from 'callbag-jsx';
+import { pipe, subscribe, expr, fromPromise, fromEvent, Source } from 'callbag-common';
+import { Conditional, List, TrackerComponentThis } from 'callbag-jsx';
 
 import { Header } from '../misc/header';
 import { Card } from '../misc/card';
@@ -75,36 +74,22 @@ export interface ArticleListProps {
 }
 
 export function ArticleList(
-  this: LiveComponentThis,
+  this: TrackerComponentThis,
   props: ArticleListProps,
   renderer: RendererLike<Node>
 ) {
   const handleScroll = () => {
-    const {
-      scrollTop,
-      scrollHeight,
-      clientHeight
-    } = document.documentElement;
-
-    if (scrollTop + clientHeight >= scrollHeight - 5) {
+    if (window.scrollY + window.outerHeight >= document.body.offsetHeight - 5) {
       if(props.loadMore) {
         props.loadMore();
       }
     }
   };
 
-  const startHandlingInfiniteScrolling = () => {
-    window.addEventListener('scroll', handleScroll, {
-      passive: true
-    });
-  };
-
-  const stopHandlingInfiniteScrolling = () => {
-    window.removeEventListener('scroll', handleScroll);
-  };
-
-  this.onBind(startHandlingInfiniteScrolling);
-  this.onClear(stopHandlingInfiniteScrolling);
+  this.track(pipe(
+    fromEvent(window, 'scroll', { passive: true }),
+    subscribe(handleScroll)
+  ));
 
   const tags = state<string[]>([]);
   const articles = expr($ => {
