@@ -1,7 +1,7 @@
 import { RendererLike } from 'render-jsx';
 import { Article, getSuggestedTags } from '@api/editor-backend';
 import { State, state, StateLike } from 'callbag-state';
-import { pipe, subscribe, expr, fromPromise, fromEvent, Source } from 'callbag-common';
+import { pipe, subscribe, expr, fromPromise, fromEvent, Source, of } from 'callbag-common';
 import { Conditional, List, TrackerComponentThis } from 'callbag-jsx';
 
 import { Header } from '../misc/header';
@@ -130,7 +130,7 @@ export function ArticleList(
         }/>
       </div>
     </div>
-    <Conditional if={props.isLoading ?? state(false)}
+    <Conditional if={props.isLoading ?? of(false)}
       then={() => <Spinner class={classes().center}/>}
     ></Conditional>
   </>;
