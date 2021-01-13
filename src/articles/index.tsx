@@ -1,7 +1,6 @@
 import { RendererLike } from 'render-jsx';
-import { fromPromise, pipe, tap, subscribe } from 'callbag-common';
-import { state } from 'callbag-state';
-import { Article, getUnapprovedArticles, getArticleByUrl, getApprovedArticles } from '@api/editor-backend';
+
+import { getUnapprovedArticles, getArticleByUrl, getApprovedArticles } from '@api/editor-backend';
 
 import { Toolbar } from '../misc/toolbar';
 import { Single } from './single';
@@ -12,99 +11,39 @@ import { navigate } from '../nav/service';
 import { NavIconButton } from '../nav/nav-icon-button';
 import { Wait } from '../misc/wait';
 import { Header } from '../misc/header';
+import { ArticleLoader } from './articlesLoader';
 
 
 export function Articles(_: unknown, renderer: RendererLike<Node>) {
   return <>
-    <Route path='**/unapproved' comp={() => {
-      const articles = state<Article[]>([]);
-      const isLoading = state(true);
-
-      const getArticles = (lastId?: string) => {
-        isLoading.set(true);
-
-        return pipe(
-          fromPromise(getUnapprovedArticles(authToken()!, lastId)),
-          tap(() => {
-            isLoading.set(false);
-          })
-        );
-      };
-
-      pipe(
-        getArticles(),
-        subscribe((newArticles) => {
-          articles.set([...articles.get(), ...newArticles]);
-        })
-      );
-
-      return <ArticleList title='Unapproved Articles'
+    <Route path='**/unapproved' comp={() => <ArticleLoader
+      loader={(lastId?: string) => getUnapprovedArticles(authToken()!, lastId)}
+      comp={(isLoading, articles, loadMore) => <ArticleList title='Unapproved Articles'
         articles={articles}
         isLoading={isLoading}
-        loadMore={() => {
-          if(isLoading.get()) {
-            return;
-          }
-
-          pipe(
-            getArticles(articles.get()[articles.get().length-1].id),
-            subscribe((newArticles) => {
-              articles.set([...articles.get(), ...newArticles]);
-            })
-          );
-        }}
+        loadMore={loadMore}
         pick={article => navigate('articles/:url/edit', {
           route: {
             url: article.url
           }
         })}
-      />;
-    }}/>
-    <Route path='**/approved' comp={() => {
-      const articles = state<Article[]>([]);
-      const isLoading = state(true);
-
-      const getArticles = (lastId?: string) => {
-        isLoading.set(true);
-
-        return pipe(
-          fromPromise(getApprovedArticles(authToken()!, lastId)),
-          tap(() => {
-            isLoading.set(false);
-          })
-        );
-      };
-
-      pipe(
-        getArticles(),
-        subscribe((newArticles) => {
-          articles.set([...articles.get(), ...newArticles]);
-        })
-      );
-
-      return <ArticleList title='Approved Articles'
+      />}
+    />}
+    />
+    <Route path='**/approved' comp={() => <ArticleLoader
+      loader={(lastId?: string) => getApprovedArticles(authToken()!, lastId)}
+      comp={(isLoading, articles, loadMore) => <ArticleList title='Approved Articles'
         articles={articles}
         isLoading={isLoading}
-        loadMore={() => {
-          if(isLoading.get()) {
-            return;
-          }
-
-          pipe(
-            getArticles(articles.get()[articles.get().length-1].id),
-            subscribe((newArticles) => {
-              articles.set([...articles.get(), ...newArticles]);
-            })
-          );
-        }}
+        loadMore={loadMore}
         pick={article => navigate('articles/:url/edit', {
           route: {
             url: article.url
           }
         })}
-      />;
-    }
-    }/>
+      />}
+    />}
+    />
     <Route path='**/new' comp={() =>
       <Single ondelete={() => {
         navigate('articles/unapproved');
