@@ -1,5 +1,5 @@
 import { RendererLike } from 'render-jsx';
-import { fromPromise } from 'callbag-common';
+
 import { getUnapprovedArticles, getArticleByUrl, getApprovedArticles } from '@api/editor-backend';
 
 import { Toolbar } from '../misc/toolbar';
@@ -11,30 +11,39 @@ import { navigate } from '../nav/service';
 import { NavIconButton } from '../nav/nav-icon-button';
 import { Wait } from '../misc/wait';
 import { Header } from '../misc/header';
+import { ArticleLoader } from './articlesLoader';
 
 
 export function Articles(_: unknown, renderer: RendererLike<Node>) {
   return <>
-    <Route path='**/unapproved' comp={() =>
-      <ArticleList title='Unapproved Articles'
-        articles={fromPromise(getUnapprovedArticles(authToken()!))}
+    <Route path='**/unapproved' comp={() => <ArticleLoader
+      loader={(lastId?: string) => getUnapprovedArticles(authToken()!, lastId)}
+      comp={(isLoading, articles, loadMore) => <ArticleList title='Unapproved Articles'
+        articles={articles}
+        isLoading={isLoading}
+        loadMore={loadMore}
         pick={article => navigate('articles/:url/edit', {
           route: {
             url: article.url
           }
         })}
-      />
-    }/>
-    <Route path='**/approved' comp={() =>
-      <ArticleList title='Approved Articles'
-        articles={fromPromise(getApprovedArticles(authToken()!))}
+      />}
+    />}
+    />
+    <Route path='**/approved' comp={() => <ArticleLoader
+      loader={(lastId?: string) => getApprovedArticles(authToken()!, lastId)}
+      comp={(isLoading, articles, loadMore) => <ArticleList title='Approved Articles'
+        articles={articles}
+        isLoading={isLoading}
+        loadMore={loadMore}
         pick={article => navigate('articles/:url/edit', {
           route: {
             url: article.url
           }
         })}
-      />
-    }/>
+      />}
+    />}
+    />
     <Route path='**/new' comp={() =>
       <Single ondelete={() => {
         navigate('articles/unapproved');

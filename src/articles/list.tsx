@@ -1,8 +1,8 @@
 import { RendererLike } from 'render-jsx';
 import { Article, getSuggestedTags } from '@api/editor-backend';
-import { state, StateLike } from 'callbag-state';
-import { expr, fromPromise, Source } from 'callbag-common';
-import { Conditional, List } from 'callbag-jsx';
+import { State, state, StateLike } from 'callbag-state';
+import { pipe, subscribe, expr, fromPromise, fromEvent, Source, of } from 'callbag-common';
+import { Conditional, List, TrackerComponentThis } from 'callbag-jsx';
 
 import { Header } from '../misc/header';
 import { Card } from '../misc/card';
@@ -12,6 +12,7 @@ import { TagInput } from '../misc/tag-input';
 import { authToken } from '../auth/service';
 import { Tag } from '../misc/tag';
 import { noop } from '../util/noop';
+import { Spinner } from '../misc/spinner';
 
 const classes = style({
   columns: {
@@ -30,6 +31,9 @@ const classes = style({
     maxHeight: 200,
     width: '100%',
     objectFit: 'cover',
+  },
+  center: {
+    left: 'calc(50% - 40px)',
   },
 });
 
@@ -64,10 +68,29 @@ export function ArticleCard(props: ArticleCardProps, renderer: RendererLike<Node
 export interface ArticleListProps {
   articles: Source<Article[]>;
   title?: string;
+  isLoading?: State<boolean>;
   pick?: (article: Article) => void;
+  loadMore?: () => void;
 }
 
-export function ArticleList(props: ArticleListProps, renderer: RendererLike<Node>) {
+export function ArticleList(
+  this: TrackerComponentThis,
+  props: ArticleListProps,
+  renderer: RendererLike<Node>
+) {
+  const handleScroll = () => {
+    if (window.scrollY + window.outerHeight >= document.body.offsetHeight - 5) {
+      if(props.loadMore) {
+        props.loadMore();
+      }
+    }
+  };
+
+  this.track(pipe(
+    fromEvent(window, 'scroll', { passive: true }),
+    subscribe(handleScroll)
+  ));
+
   const tags = state<string[]>([]);
   const articles = expr($ => {
     if ($(tags)?.length === 0) { return $(props.articles); }
@@ -107,5 +130,8 @@ export function ArticleList(props: ArticleListProps, renderer: RendererLike<Node
         }/>
       </div>
     </div>
+    <Conditional if={props.isLoading ?? of(false)}
+      then={() => <Spinner class={classes().center}/>}
+    ></Conditional>
   </>;
 }

@@ -10,7 +10,7 @@ export interface SwitchProps<T> {
 }
 
 
-export function Switch<T>(props: SwitchProps<T>, renderer: RendererLike<Node>, content: Node[]) {
+export function Switch<T>(props: SwitchProps<T>, renderer: RendererLike<Node>) {
   return <>
     {props.cases.map(_case => <Conditional if={expr($ => $(props.on) === _case[0])} then={_case[1]}/>)}
   </>;
