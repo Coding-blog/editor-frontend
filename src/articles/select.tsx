@@ -1,11 +1,12 @@
 import { RendererLike } from 'render-jsx';
 import { ref } from 'render-jsx/common';
 import { state } from 'callbag-state';
+import sub from 'callbag-subscribe';
 
 import { style } from '../util/style';
-import { Article, getApprovedArticles, getSuggestedTags } from '@api/editor-backend';
+import { Article, getApprovedArticlesByTags, getSuggestedTags } from '@api/editor-backend';
 import { Dialog, DialogControls } from '../misc/overlay/dialog';
-import { expr, fromPromise } from 'callbag-common';
+import { expr, fromPromise, pipe, subscribe } from 'callbag-common';
 import { authToken } from '../auth/service';
 import { TagInput } from '../misc/tag-input';
 import { List } from 'callbag-jsx';
@@ -40,13 +41,32 @@ export interface SelectArticleProps {
 export function SelectArticle(props: SelectArticleProps, renderer: RendererLike<Node>) {
   const controls = ref<DialogControls>();
 
-  const all = fromPromise(getApprovedArticles(authToken()!));
   const tags = state<string[]>([]);
+  const all = state<Article[]>([]);
+
+  // Let's load the initial set of articles (without tag filtering)
+  pipe(
+    fromPromise(getApprovedArticlesByTags(authToken()!, tags.get())),
+    subscribe((articles) => {
+      all.set([...all.get(), ...articles]);
+    })
+  );
+
   const articles = expr($ => {
     const list = props.filter ? $(all)?.filter(props.filter) : $(all);
-    if ($(tags)?.length === 0) { return list; }
-    else { return list?.filter(article => $(tags)?.every(tag => article.tags?.includes(tag))); }
+
+    return list;
   });
+
+  sub((newTags:string[]) => {
+    pipe(
+      fromPromise(getApprovedArticlesByTags(authToken()!, newTags)),
+      subscribe((newArticles) => {
+        all.set(newArticles);
+      })
+    );
+  })(tags);
+
 
   const pick = (article: Article) => {
     controls.$.close();
