@@ -44,20 +44,7 @@ export function SelectArticle(props: SelectArticleProps, renderer: RendererLike<
   const tags = state<string[]>([]);
   const all = state<Article[]>([]);
 
-  // Let's load the initial set of articles (without tag filtering)
-  pipe(
-    fromPromise(getApprovedArticlesByTags(authToken()!, tags.get())),
-    subscribe((articles) => {
-      all.set([...all.get(), ...articles]);
-    })
-  );
-
-  const articles = expr($ => {
-    const list = props.filter ? $(all)?.filter(props.filter) : $(all);
-
-    return list;
-  });
-
+  // Let's make sure we're loading the correct articles
   sub((newTags:string[]) => {
     pipe(
       fromPromise(getApprovedArticlesByTags(authToken()!, newTags)),
@@ -66,6 +53,12 @@ export function SelectArticle(props: SelectArticleProps, renderer: RendererLike<
       })
     );
   })(tags);
+
+  const articles = expr($ => {
+    const list = props.filter ? $(all)?.filter(props.filter) : $(all);
+
+    return list;
+  });
 
 
   const pick = (article: Article) => {
