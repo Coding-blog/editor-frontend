@@ -26,7 +26,12 @@ export interface SingleProps {
 
 
 export function Single(this: TrackerComponentThis, props: SingleProps, renderer: RendererLike<Node>) {
-  const issue = state<Issue>(cloneDeep(props.issue) || {
+  const clonedIssue = cloneDeep(props.issue);
+  if (clonedIssue) {
+    clonedIssue.oldTitle = props.issue?.title;
+  }
+
+  const issue = state<Issue>(clonedIssue || {
     title: '',
     reader: Q().get()?.for || '',
     date: new Date(),
@@ -106,7 +111,15 @@ export function Single(this: TrackerComponentThis, props: SingleProps, renderer:
     (props.issue ? updateIssue : createIssue)(authToken()!, issue.get())
       .then(() => props.issue = snapshot(issue))
       .catch(() => alert('Could not save!'))
-      .finally(() => saving.set(false));
+      .finally(() => {
+        if(props.issue) {
+          props.issue.oldTitle = props.issue?.title;
+        }
+
+        issue.sub('oldTitle').set(props.issue?.title);
+
+        saving.set(false);
+      });
   };
 
   const trash = () => {
