@@ -1,7 +1,6 @@
 import { RendererLike } from 'render-jsx';
 import { ref } from 'render-jsx/common';
 import { state } from 'callbag-state';
-import sub from 'callbag-subscribe';
 
 import { style } from '../util/style';
 import { Article, getApprovedArticlesByTags, getSuggestedTags } from '@api/editor-backend';
@@ -45,7 +44,7 @@ export function SelectArticle(props: SelectArticleProps, renderer: RendererLike<
   const all = state<Article[]>([]);
 
   // Let's make sure we're loading the correct articles
-  sub((newTags:string[]) => {
+  subscribe((newTags:string[]) => {
     pipe(
       fromPromise(getApprovedArticlesByTags(authToken()!, newTags)),
       subscribe((newArticles) => {
