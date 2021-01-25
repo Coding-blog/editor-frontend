@@ -17,11 +17,12 @@ import { ArticleLoader } from './articlesLoader';
 export function Articles(_: unknown, renderer: RendererLike<Node>) {
   return <>
     <Route path='**/unapproved' comp={() => <ArticleLoader
-      loader={(lastId?: string) => getUnapprovedArticles(authToken()!, lastId)}
-      comp={(isLoading, articles, loadMore) => <ArticleList title='Unapproved Articles'
+      loader={(filterTags: string[], lastId?: string) => getUnapprovedArticles(authToken()!, filterTags, lastId)}
+      comp={(isLoading, articles, tags, loadMore) => <ArticleList title='Unapproved Articles'
         articles={articles}
         isLoading={isLoading}
         loadMore={loadMore}
+        tags={tags}
         pick={article => navigate('articles/:url/edit', {
           route: {
             url: article.url
@@ -31,11 +32,12 @@ export function Articles(_: unknown, renderer: RendererLike<Node>) {
     />}
     />
     <Route path='**/approved' comp={() => <ArticleLoader
-      loader={(lastId?: string) => getApprovedArticles(authToken()!, lastId)}
-      comp={(isLoading, articles, loadMore) => <ArticleList title='Approved Articles'
+      loader={(filterTags: string[], lastId?: string) => getApprovedArticles(authToken()!, filterTags, lastId)}
+      comp={(isLoading, articles, tags, loadMore) => <ArticleList title='Approved Articles'
         articles={articles}
         isLoading={isLoading}
         loadMore={loadMore}
+        tags={tags}
         pick={article => navigate('articles/:url/edit', {
           route: {
             url: article.url

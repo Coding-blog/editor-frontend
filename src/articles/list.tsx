@@ -71,6 +71,7 @@ export interface ArticleListProps {
   isLoading?: State<boolean>;
   pick?: (article: Article) => void;
   loadMore?: () => void;
+  tags?: State<string[]>;
 }
 
 export function ArticleList(
@@ -91,11 +92,7 @@ export function ArticleList(
     subscribe(handleScroll)
   ));
 
-  const tags = state<string[]>([]);
-  const articles = expr($ => {
-    if ($(tags)?.length === 0) { return $(props.articles); }
-    else { return $(props.articles)?.filter(article => $(tags)?.every(tag => article.tags?.includes(tag))); }
-  });
+  const tags = props.tags ?? state<string[]>([]);
 
   const addTag = (tag: string) => {
     if (!tags.get().includes(tag)) {
@@ -116,14 +113,14 @@ export function ArticleList(
     }
     <div class={classes().columns}>
       <div class={classes().column}>
-        <List of={articles} each={(article, index) =>
+        <List of={props.articles} each={(article, index) =>
           index % 2 === 0 ?
             <ArticleCard article={article} pick={props.pick} tagPick={addTag}/>
             : <></>
         }/>
       </div>
       <div class={classes().column}>
-        <List of={articles} each={(article, index) =>
+        <List of={props.articles} each={(article, index) =>
           index % 2 === 1 ?
             <ArticleCard article={article} pick={props.pick} tagPick={addTag}/>
             : <></>
