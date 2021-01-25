@@ -5,7 +5,7 @@ import { state } from 'callbag-state';
 import { style } from '../util/style';
 import { Article, getApprovedArticlesByTags, getSuggestedTags } from '@api/editor-backend';
 import { Dialog, DialogControls } from '../misc/overlay/dialog';
-import { expr, fromPromise, pipe, subscribe } from 'callbag-common';
+import { expr, fromPromise, pipe, subscribe, map, flatten } from 'callbag-common';
 import { authToken } from '../auth/service';
 import { TagInput } from '../misc/tag-input';
 import { List } from 'callbag-jsx';
@@ -43,15 +43,12 @@ export function SelectArticle(props: SelectArticleProps, renderer: RendererLike<
   const tags = state<string[]>([]);
   const all = state<Article[]>([]);
 
-  // Let's make sure we're loading the correct articles
-  subscribe((newTags:string[]) => {
-    pipe(
-      fromPromise(getApprovedArticlesByTags(authToken()!, newTags)),
-      subscribe((newArticles) => {
-        all.set(newArticles);
-      })
-    );
-  })(tags);
+  pipe(
+    tags,
+    map((t: string[]) => fromPromise(getApprovedArticlesByTags(authToken()!, t))),
+    flatten,
+    subscribe(res => all.set(res))
+  );
 
   const articles = expr($ => {
     const list = props.filter ? $(all)?.filter(props.filter) : $(all);
