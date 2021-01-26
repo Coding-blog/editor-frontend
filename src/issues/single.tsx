@@ -172,7 +172,7 @@ export function Single(this: TrackerComponentThis, props: SingleProps, renderer:
     <br/>
     <Buttons>
       <IconButton icon='./assets/icon-magic.svg'
-        disabled={expr($ => !$(issue)?.reader || $(issue)?.status === 'sent' || $(autofilling))}
+        disabled={expr($ => !$(issue)?.reader || $(issue)?.status === 'sent' || $(autofilling, false))}
         onclick={autofill}/>
       <IconButton icon='./assets/icon-new.svg'
         disabled={expr($ => $(issue)?.status === 'sent')}
@@ -195,7 +195,7 @@ export function Single(this: TrackerComponentThis, props: SingleProps, renderer:
           disabled={expr($ => $(issue)?.status === 'sent')}
           onclick={trash}/>
         <IconButton icon='./assets/icon-send.svg'
-          disabled={expr($ => $(issue)?.status === 'sent' || $(saving))}
+          disabled={expr($ => $(issue)?.status === 'sent' || $(saving, false))}
           onclick={send}/>
       </>}/>
       <button disabled={expr($ => !($(isValid) && $(hasChanged) && !$(saving)))} onclick={save}>
