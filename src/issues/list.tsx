@@ -73,7 +73,7 @@ export function IssuesList(props: IssuesListProps, renderer: RendererLike<Node>)
     }
     <div style={{ display: 'flex', 'flex-direction': 'column', gap: '8px' }}>
       <List
-        of={expr($ => $(props.issues)?.filter(issue => !$(reader) || issue.reader === $(reader)))}
+        of={expr($ => $(props.issues)?.filter(issue => !$(reader) || issue.reader === $(reader)) || [])}
         each={(issue: StateLike<Issue>) =>
           <IssueItem issue={issue} pick={props.pick ? () => props.pick!(issue.get()!) : noop}/>
         }
