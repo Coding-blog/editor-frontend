@@ -19,19 +19,20 @@ import { noop } from '../util/noop';
 import { Q } from '../nav/service';
 
 
+type WorkingIssue = Issue & { oldTitle?: string };
+
 export interface SingleProps {
-  issue?: Issue;
+  issue?: WorkingIssue;
   ondelete?: () => void;
 }
 
-
 export function Single(this: TrackerComponentThis, props: SingleProps, renderer: RendererLike<Node>) {
-  const clonedIssue = cloneDeep(props.issue);
+  const clonedIssue: WorkingIssue | undefined = cloneDeep(props.issue);
   if (clonedIssue) {
     clonedIssue.oldTitle = props.issue?.title;
   }
 
-  const issue = state<Issue>(clonedIssue || {
+  const issue = state<WorkingIssue>(clonedIssue || {
     title: '',
     reader: Q().get()?.for || '',
     date: new Date(),

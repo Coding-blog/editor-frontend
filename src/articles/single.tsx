@@ -126,6 +126,7 @@ export function Single(this: TrackerComponentThis,
     <label>Approval Status</label>
     <div style={{display: 'flex', gap: '8px' }}>
       <select _state={article.sub('status')}>
+        <option value='rejected'>Rejected</option>
         <option value='submitted'>Submitted</option>
         <option value='approved'>Approved</option>
       </select>

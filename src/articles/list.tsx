@@ -12,7 +12,7 @@ import { TagInput } from '../misc/tag-input';
 import { authToken } from '../auth/service';
 import { Tag } from '../misc/tag';
 import { noop } from '../util/noop';
-import { Spinner } from '../misc/spinner';
+import { Loading } from '../misc/loading';
 
 const classes = style({
   columns: {
@@ -127,7 +127,11 @@ export function ArticleList(
       </div>
     </div>
     <Conditional if={props.isLoading ?? of(false)}
-      then={() => <Spinner class={classes().center}/>}
+      then={() => <div style={{
+        'text-align': 'center',
+        'padding-top.px': 32,
+        transform: 'scale(2)',
+      }}><Loading/></div>}
     ></Conditional>
   </>;
 }

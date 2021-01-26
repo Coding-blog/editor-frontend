@@ -47,5 +47,5 @@ export function ArticleLoader(props: ArticlesLoaderProps, renderer: RendererLike
     );
   };
 
-  return props.comp(isLoading, articles, tags, loadMore);
+  return <>{props.comp(isLoading, articles, tags, loadMore)}</>;
 }
