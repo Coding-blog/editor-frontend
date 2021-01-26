@@ -59,7 +59,7 @@ export function Single(this: TrackerComponentThis,
 
   this.track(pipe(
     article.sub('url'),
-    filter(isUrl),
+    filter(u => !!u && isUrl(u)),
     filter(() => !props.article),
     tap(() => autofilling.set(true)),
     debounce(700),

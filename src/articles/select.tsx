@@ -51,7 +51,7 @@ export function SelectArticle(props: SelectArticleProps, renderer: RendererLike<
   );
 
   const articles = expr($ => {
-    const list = props.filter ? $(all)?.filter(props.filter) : $(all);
+    const list = props.filter ? $(all, [])?.filter(props.filter) : $(all, []);
 
     return list;
   });

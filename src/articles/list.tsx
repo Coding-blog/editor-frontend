@@ -44,10 +44,9 @@ export interface ArticleCardProps {
 }
 
 export function ArticleCard(props: ArticleCardProps, renderer: RendererLike<Node>) {
-
   return <Card title={props.article.sub('title')}
     image={<Conditional
-      if={props.article.sub('image')}
+      if={expr($ => !!$(props.article)?.image)}
       then={() => <img class={classes().image} src={props.article.sub('image')}/>}/>
     }
     subtitle={expr($ => $(props.article)?.publishingDate.toDateString())}

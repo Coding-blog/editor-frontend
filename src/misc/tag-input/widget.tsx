@@ -33,7 +33,7 @@ export interface TagsWidgetProps {
 
 export function TagsWidget(props: TagsWidgetProps, renderer: RendererLike<Node>) {
   return <OverlayWidget element={props.element}
-    show={expr($ => $(props.focused) && $(props.src, []).length > 0)}
+    show={expr($ => !!$(props.focused) && $(props.src, []).length > 0)}
     attachment={rect => ({ top: rect.bottom + 3, left: rect.left })}
     repos={pipe(props.src, debounce(1))}>
     <For of={pipe(props.src, map(l => l.slice(0, 10)))} each={(item, index) =>
